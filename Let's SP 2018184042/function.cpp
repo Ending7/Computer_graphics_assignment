@@ -4,16 +4,25 @@
 using namespace std;
 
 /***************************************일반 함수들*************************************/
+/*초기 오브젝트*/
 void InitObject() //오브젝트 소환
 {
 
 }
 
+/*도형 버퍼 초기화(사용X)*/
 void InitBuffer()
 {
 
 }
 
+/*경로 버퍼 초기화(사용X)*/
+void InitPathBuffer()
+{
+
+}
+
+/*도형 그리기*/
 void Draw()
 {
 	for (int i = 0; i < 100; i++)
@@ -22,6 +31,16 @@ void Draw()
 	}
 }
 
+/*경로 그리기*/
+void ShowPath()
+{
+	for (int i = 0; i < 100; i++)
+	{
+		object[i].ShowPath();
+	}
+}
+
+/*도형 생성*/
 void Create()
 {
 	for (int i = 0; i < 100; i++)
@@ -34,6 +53,7 @@ void Create()
 	}
 }
 
+/*도형 이동*/
 void Move() 
 {
 	for (int i = 0; i < 100; i++)
@@ -54,11 +74,23 @@ void Cobject::Draw()
 
 	if (_Alive == true)
 	{
-		glBindVertexArray(_vao);
 		Reset();
+		InitBuffer();
+		glBindVertexArray(_vao);
 		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
 
+}
+
+/*경로 그리기*/
+void Cobject::ShowPath()
+{
+	if (_Alive == true)
+	{
+		InitPathBuffer();
+		glBindVertexArray(_vao);
+		glDrawArrays(GL_LINES, 0, 2);
+	}
 }
 
 /*도형 생성*/
@@ -79,8 +111,8 @@ void Cobject::Move()
 		switch (_moveType)
 		{
 		case 1:
-			_positionX1 = (1 - _moveT) * tempX + _moveT * _positionX2;
-			_positionY1 = (1 - _moveT) * tempY + _moveT * _positionY2;
+			_positionX1 = (1 - _moveT) * _tempX + _moveT * _positionX2;
+			_positionY1 = (1 - _moveT) * _tempY + _moveT * _positionY2;
 			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
@@ -89,8 +121,8 @@ void Cobject::Move()
 			break;
 
 		case 2:
-			_positionX2 = (1 - _moveT) * tempX + _moveT * _positionX1;
-			_positionY2 = (1 - _moveT) * tempY + _moveT * _positionY1;
+			_positionX2 = (1 - _moveT) * _tempX + _moveT * _positionX1;
+			_positionY2 = (1 - _moveT) * _tempY + _moveT * _positionY1;
 			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
@@ -112,16 +144,31 @@ void Cobject::ObjectReset()
 	_positionY1 = (float)randPosition(eng);
 	_positionY2 = (float)randPosition(eng);
 
+
 	/*_moveType1 = 왼->오, moveType2 = 오->왼*/
 	if (_moveType == 1)
 	{
-		tempX = _positionX1;
-		tempY = _positionY1;
+		_tempX = _positionX1;
+		_tempY = _positionY1;
+
+		_pathArr[0][0] = _tempX;
+		_pathArr[0][1] = _tempY;
+		_pathArr[0][2] = 0.0f;
+		_pathArr[1][0] = _positionX2;
+		_pathArr[1][1] = _positionY2;
+		_pathArr[1][2] = 0.0f;
 	}
 	else if (_moveType == 2)
 	{
-		tempX = _positionX2;
-		tempY = _positionY2;
+		_tempX = _positionX2;
+		_tempY = _positionY2;
+
+		_pathArr[0][0] = _tempX;
+		_pathArr[0][1] = _tempY;
+		_pathArr[0][2] = 0.0f;
+		_pathArr[1][0] = _positionX1;
+		_pathArr[1][1] = _positionY1;
+		_pathArr[1][2] = 0.0f;
 	}
 }
 
@@ -141,6 +188,30 @@ void Cobject::InitBuffer()
 	/*vbo binding*/
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(_objectArr), _objectArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(pAttribute);
+	glEnableVertexAttribArray(cAttribute);
+}
+void Cobject::InitPathBuffer()
+{
+	GLint pAttribute = glGetAttribLocation(shaderID, "in_Position");
+	GLint cAttribute = glGetAttribLocation(shaderID, "in_Color");
+
+	/*create buffer*/
+	glGenVertexArrays(1, &_vao);
+	glGenBuffers(2, _vbo);
+
+	/*vao binding*/
+	glBindVertexArray(_vao);
+
+	/*vbo binding*/
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_pathArr), _pathArr, GL_STATIC_DRAW);
 	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
@@ -254,7 +325,11 @@ GLvoid drawScene()
 	/*셰이더 프로그램 사용*/
 	glUseProgram(shaderID);
 
-	
+	/*경로 출력하기*/
+	if (showPath == true){
+		ShowPath();
+	}
+		
 	/*그리기*/
 	Draw();
 
@@ -274,6 +349,10 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 	case 'm':
 		objectMode = !objectMode;
 		objectMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
+
+	case 'p':
+		showPath = !showPath;
 		break;
 
 	case '+':

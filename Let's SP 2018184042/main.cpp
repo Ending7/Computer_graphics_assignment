@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 	InitBuffer();
 	/*그 외*/
 	printf("[m]: 도형의 모드: LINE/FILL\n");
+	printf("[p]: 경로 출력하기: on/off\n");
 	printf("[+]: 날라오는 속도 증가\n");
 	printf("[-]: 날라오는 속도 감소\n");
 	printf("[q]: 프로그램 종료\n");

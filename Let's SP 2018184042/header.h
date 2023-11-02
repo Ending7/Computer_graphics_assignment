@@ -23,6 +23,7 @@ GLuint fragmentShader;
 
 /*체크 변수*/
 bool objectMode;
+bool showPath;
 
 /*일반 변수*/
 int timerSpeed = 50;
@@ -46,6 +47,7 @@ public:
 
 	/*버퍼 초기화*/
 	void InitBuffer();
+	void InitPathBuffer();
 
 	/*그리기*/
 	void Draw();
@@ -61,7 +63,7 @@ public:
 	/*상태 변환*/
 	void Create();
 	void Move();
-	
+	void ShowPath();
 
 	/*행렬 변환*/
 	void Reset();
@@ -76,6 +78,7 @@ private:
 	GLuint _vao, _vbo[2];
 	float _objectArr[6][3] = { 0.0f };
 	float _colorArr[6][3] = { 0.0f };
+	float _pathArr[2][3] = { 0.0f };
 
 	/*상태 변화 관련*/
 	bool _Alive = false;
@@ -84,6 +87,6 @@ private:
 	int _moveType;
 	float _moveT;
 	float _positionX1, _positionY1, _positionX2, _positionY2;
-	float tempX, tempY;
+	float _tempX, _tempY;
 };
 Cobject object[100];
