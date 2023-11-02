@@ -38,6 +38,8 @@ int main(int argc, char** argv)
 	InitBuffer();
 	/*그 외*/
 	printf("[m]: 도형의 모드: LINE/FILL\n");
+	printf("[+]: 날라오는 속도 증가\n");
+	printf("[-]: 날라오는 속도 감소\n");
 	printf("[q]: 프로그램 종료\n");
 
 	/*********콜백 함수(운영체제 호출 함수) 호출하기*********/

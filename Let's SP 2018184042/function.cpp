@@ -81,7 +81,7 @@ void Cobject::Move()
 		case 1:
 			_positionX1 = (1 - _moveT) * tempX + _moveT * _positionX2;
 			_positionY1 = (1 - _moveT) * tempY + _moveT * _positionY2;
-			_moveT += 0.001f;
+			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
 			SetArray();
@@ -91,7 +91,7 @@ void Cobject::Move()
 		case 2:
 			_positionX2 = (1 - _moveT) * tempX + _moveT * _positionX1;
 			_positionY2 = (1 - _moveT) * tempY + _moveT * _positionY1;
-			_moveT += 0.001f;
+			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
 			SetArray();
@@ -276,6 +276,20 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 		objectMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		break;
 
+	case '+':
+		if (timerSpeed > 10)
+		{
+			timerSpeed -= 10;
+		}
+		break;
+
+	case '-':
+		if (timerSpeed < 50)
+		{
+			timerSpeed += 10;
+		}
+		break;
+
 	case 'q':
 		exit(1);
 		break;
@@ -292,7 +306,7 @@ GLvoid TimerCreate(int value)
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(3000, TimerCreate, 1);
+	glutTimerFunc(2000, TimerCreate, 1);
 }
 
 GLvoid TimerMove(int value)
@@ -304,7 +318,7 @@ GLvoid TimerMove(int value)
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(10, TimerMove, 1);
+	glutTimerFunc(timerSpeed, TimerMove, 1);
 }
 /**********************************************************************************************/
 

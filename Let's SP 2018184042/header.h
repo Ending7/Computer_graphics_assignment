@@ -23,6 +23,9 @@ GLuint fragmentShader;
 
 /*체크 변수*/
 bool objectMode;
+
+/*일반 변수*/
+int timerSpeed = 50;
 float rotateval = 0.0f;
 
 enum {
