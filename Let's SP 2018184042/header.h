@@ -16,6 +16,7 @@ uniform_real_distribution<double> randomSpeed(0.1, 1.0);
 uniform_real_distribution<double> randomPosition(-0.4, 0.4);
 uniform_int_distribution<int> randomMotionType1(1, 2);
 uniform_int_distribution<int> randomMotionType2(1, 4);
+uniform_int_distribution<int> polygonType(3, 6);
 
 /*셰이더 프로그램 변수*/
 GLuint shaderID;
@@ -23,16 +24,24 @@ GLuint vertexShader;
 GLuint fragmentShader;
 
 /*체크 변수*/
+
 /*******VBO object_Type*******/
 enum
 {
-	VBO_AXIS = 1
+	TRIANGLE = 1,
+	RECTANGLE = 2,
+	PENTAGON = 3,
+	HEXAGON = 4
 };
+float rotateval = 0.0f;
 
-/************PARTS************/
-enum
-{
-	AXIS = 1,
+struct coord {
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	float r = 0;
+	float g = 0;
+	float b = 0;
 };
 
 class Cobject
@@ -43,9 +52,6 @@ public:
 
 	/*객체 초기화*/
 	void SetAlive(bool alive);
-	void SetVertexType(GLint type);
-	void SetType(GLint type);
-	void SetNumber(GLint number);
 	void SetArray();
 
 	/*그리기*/
@@ -54,24 +60,17 @@ public:
 	/*변환*/
 	void Reset();
 
-	/*상태 변화*/
+public:
+	/*배열 동적 할당*/
+	int arrCount = polygonType(eng);
 
-
-	/*애니메이션*/
-
-
-private:
 	/*배열 관련*/
 	GLuint _vao, _vbo[2];
-	float _objectArr[6][3] = { 0.0f };
-	float _colorArr[6][3] = { 0.0f };
-
-	/*행렬 관련*/
+	coord * _objectArr =(coord *)malloc(arrCount*sizeof(coord));
 
 	/*상태 변화 관련*/
 	bool _Alive = false;
 	int _objectType;
 	int _objectNumber;
-	int _vertexType;
 };
 Cobject object[1];

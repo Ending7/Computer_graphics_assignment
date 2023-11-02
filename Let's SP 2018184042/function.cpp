@@ -6,16 +6,13 @@ using namespace std;
 /***************************************일반 함수들*************************************/
 void InitObject() //오브젝트 소환
 {
-	/*AXIS*/
 	object[0].SetAlive(true);
-	object[0].SetType(VBO_AXIS);
-	object[0].SetNumber(AXIS);
 	object[0].SetArray();
 }
 
 void InitBuffer()
 {
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		object[i].InitBuffer();
 	}
@@ -23,7 +20,7 @@ void InitBuffer()
 
 void Draw()
 {
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		object[i].Draw();
 	}
@@ -41,13 +38,8 @@ void Cobject::Draw()
 	if (_Alive == true)
 	{
 		glBindVertexArray(_vao);
-		Reset();
-		switch (_objectNumber)
-		{
-		case AXIS:
-			glDrawArrays(GL_LINES, 0, 6);
-			break;
-		}
+		Reset();	
+		glDrawArrays(GL_POLYGON, 0, object[0].arrCount);
 	}
 }
 
@@ -66,12 +58,10 @@ void Cobject::InitBuffer()
 
 	/*vbo binding*/
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(_objectArr), _objectArr, GL_STATIC_DRAW);
-	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, object[0].arrCount * (6 * sizeof(float)),object[0]._objectArr, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
-	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
 
 	glEnableVertexAttribArray(pAttribute);
 	glEnableVertexAttribArray(cAttribute);
@@ -86,46 +76,21 @@ void Cobject::SetAlive(bool alive)
 		_Alive = false;
 }
 
-/*VBO*/
-void Cobject::SetVertexType(GLint type)
-{
-	_vertexType = type;
-}
-
-/*도형 타입*/
-void Cobject::SetType(GLint type)
-{
-	_objectType = type;
-}
-
-/*도형 ID*/
-void Cobject::SetNumber(GLint number)
-{
-	_objectNumber = number;
-}
-
 /*vertex, color*/
 void Cobject::SetArray()
 {
-	switch (_objectType)
+
+	for (int i = 0; i < object[0].arrCount; i++)
 	{
-	case VBO_AXIS:
-	/*vertex*/
-	{_objectArr[0][0] = 1.0f, _objectArr[0][1] = 0.0f, _objectArr[0][2] = 0.0f; } //x1
-	{_objectArr[1][0] = -1.0f, _objectArr[1][1] = 0.0f, _objectArr[1][2] = 0.0f; } //x2
-	{_objectArr[2][0] = 0.0f, _objectArr[2][1] = 1.0f, _objectArr[2][2] = 0.0f; } //y1
-	{_objectArr[3][0] = 0.0f, _objectArr[3][1] = -1.0f, _objectArr[3][2] = 0.0f; } //y2
-	{_objectArr[4][0] = 0.0f, _objectArr[4][1] = 0.0f, _objectArr[4][2] = 1.0f; } //z1
-	{_objectArr[5][0] = 0.0f, _objectArr[5][1] = 0.0f, _objectArr[5][2] = -1.0f; }//z2
-	/*color*/
-	{_colorArr[0][0] = 0.0f, _colorArr[0][1] = 0.0f, _colorArr[0][2] = 1.0f; }
-	{_colorArr[1][0] = 0.0f, _colorArr[1][1] = 0.0f, _colorArr[1][2] = 1.0f; }
-	{_colorArr[2][0] = 1.0f, _colorArr[2][1] = 0.0f, _colorArr[2][2] = 0.0f; }
-	{_colorArr[3][0] = 1.0f, _colorArr[3][1] = 0.0f, _colorArr[3][2] = 0.0f; }
-	{_colorArr[4][0] = 0.0f, _colorArr[4][1] = 1.0f, _colorArr[4][2] = 0.0f; }
-	{_colorArr[5][0] = 0.0f, _colorArr[5][1] = 1.0f, _colorArr[5][2] = 0.0f; }
-	break;
+		float angle = 2 * glm::pi<float>() * i / object[0].arrCount;
+		object[0]._objectArr[i].x = 0.175f * glm::cos(angle);
+		object[0]._objectArr[i].y = 0.175f * glm::sin(angle);
+		object[0]._objectArr[i].z = 0;
+		object[0]._objectArr[i].r = 0.0f;
+		object[0]._objectArr[i].g = 0.0f;
+		object[0]._objectArr[i].b = 0.0f;
 	}
+
 }
 /**********************************************************************************************/
 
@@ -134,7 +99,7 @@ void Cobject::Reset()
 {
 	unsigned transformLocate = glGetUniformLocation(shaderID, "Transform");
 	glm::mat4 mixMat = glm::mat4{ 1.0f };
-
+	mixMat = glm::rotate(mixMat, glm::radians(rotateval), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(transformLocate, 1, GL_FALSE, glm::value_ptr(mixMat));
 }
 
@@ -175,6 +140,9 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 
 GLvoid TimerFunction(int value)
 {
+	/*회전*/
+	rotateval += 10.0f;
+
 	/*Update와 Draw호출*/
 	glutPostRedisplay();
 
@@ -183,6 +151,126 @@ GLvoid TimerFunction(int value)
 }
 
 /**********************************************************************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /****************************************Shader Pragram****************************************/
 /*버텍스 셰이더 객체 만들기*/

@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	/*vao에 vbo연결하기*/
 	InitBuffer();
 	/*그 외*/
-	//glEnable(GL_DEPTH_TEST);
+	/*glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
 
 	/*********콜백 함수(운영체제 호출 함수) 호출하기*********/
 	glutDisplayFunc(drawScene); 
