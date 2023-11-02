@@ -11,12 +11,9 @@ using namespace std;
 random_device seeder;
 const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
-uniform_real_distribution<double> randomColor(0.0, 1.0);
-uniform_real_distribution<double> randomSpeed(0.1, 1.0);
-uniform_real_distribution<double> randomPosition(-0.4, 0.4);
-uniform_int_distribution<int> randomMotionType1(1, 2);
-uniform_int_distribution<int> randomMotionType2(1, 4);
+uniform_int_distribution<int> randColor(1, 3);
 uniform_int_distribution<int> polygonType(3, 6);
+uniform_real_distribution<double> randPosition(0.0f, 1.0f);
 
 /*셰이더 프로그램 변수*/
 GLuint shaderID;
@@ -24,29 +21,26 @@ GLuint vertexShader;
 GLuint fragmentShader;
 
 /*체크 변수*/
-
-/*******VBO object_Type*******/
-enum
-{
-	TRIANGLE = 1,
-	RECTANGLE = 2,
-	PENTAGON = 3,
-	HEXAGON = 4
-};
 float rotateval = 0.0f;
 
-struct coord {
-	float x = 0;
-	float y = 0;
-	float z = 0;
-	float r = 0;
-	float g = 0;
-	float b = 0;
+enum {
+	RED = 1,
+	GREEN = 2,
+	BLUE = 3,
+	CYAN = 4
 };
 
 class Cobject
 {
 public:
+	Cobject()
+	{
+		_objectType = polygonType(eng);
+		_colorType = randColor(eng);
+		_positionX = randPosition(eng);
+		_positionY = randPosition(eng);
+	};
+
 	/*버퍼 초기화*/
 	void InitBuffer();
 
@@ -54,23 +48,25 @@ public:
 	void SetAlive(bool alive);
 	void SetArray();
 
+	/*상태 확인*/
+	bool GetAlive();
+
 	/*그리기*/
 	void Draw();
 
 	/*변환*/
 	void Reset();
 
-public:
-	/*배열 동적 할당*/
-	int arrCount = polygonType(eng);
-
+private:
 	/*배열 관련*/
 	GLuint _vao, _vbo[2];
-	coord * _objectArr =(coord *)malloc(arrCount*sizeof(coord));
+	float _objectArr[6][3] = { 0.0f };
+	float _colorArr[6][3] = { 0.0f };
 
 	/*상태 변화 관련*/
 	bool _Alive = false;
 	int _objectType;
-	int _objectNumber;
+	int _colorType;
+	float _positionX, _positionY;
 };
-Cobject object[1];
+Cobject object[100];

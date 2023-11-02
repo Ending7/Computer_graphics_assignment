@@ -6,13 +6,12 @@ using namespace std;
 /***************************************일반 함수들*************************************/
 void InitObject() //오브젝트 소환
 {
-	object[0].SetAlive(true);
-	object[0].SetArray();
+	
 }
 
 void InitBuffer()
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		object[i].InitBuffer();
 	}
@@ -20,11 +19,10 @@ void InitBuffer()
 
 void Draw()
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		object[i].Draw();
 	}
-
 }
 /**********************************************************************************************/
 
@@ -39,7 +37,7 @@ void Cobject::Draw()
 	{
 		glBindVertexArray(_vao);
 		Reset();	
-		glDrawArrays(GL_POLYGON, 0, object[0].arrCount);
+		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
 }
 
@@ -58,10 +56,12 @@ void Cobject::InitBuffer()
 
 	/*vbo binding*/
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, object[0].arrCount * (6 * sizeof(float)),object[0]._objectArr, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_objectArr), _objectArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glEnableVertexAttribArray(pAttribute);
 	glEnableVertexAttribArray(cAttribute);
@@ -79,22 +79,61 @@ void Cobject::SetAlive(bool alive)
 /*vertex, color*/
 void Cobject::SetArray()
 {
-
-	for (int i = 0; i < object[0].arrCount; i++)
+	for (int i = 0; i < _objectType; i++)
 	{
-		float angle = 2 * glm::pi<float>() * i / object[0].arrCount;
-		object[0]._objectArr[i].x = 0.175f * glm::cos(angle);
-		object[0]._objectArr[i].y = 0.175f * glm::sin(angle);
-		object[0]._objectArr[i].z = 0;
-		object[0]._objectArr[i].r = 0.0f;
-		object[0]._objectArr[i].g = 0.0f;
-		object[0]._objectArr[i].b = 0.0f;
+		float angle = 2 * glm::pi<float>() * i / _objectType;
+		_objectArr[i][0] = _positionX + 0.175f * glm::cos(angle);
+		_objectArr[i][1] = _positionY + 0.175f * glm::sin(angle);
+		_objectArr[i][2] = 0.0f;
+			
 	}
 
+	switch (_colorType)
+	{
+	case RED:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	case GREEN:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	case BLUE:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	case CYAN:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	}
 }
 /**********************************************************************************************/
 
-/***************************************클래스 관련(변환)**************************************/
+/*************************************클래스 함수(상태 확인)***********************************/
+bool Cobject::GetAlive()
+{
+	return _Alive;
+}
+/**********************************************************************************************/
+
+/***************************************클래스 함수(변환)**************************************/
 void Cobject::Reset()
 {
 	unsigned transformLocate = glGetUniformLocation(shaderID, "Transform");
@@ -102,7 +141,6 @@ void Cobject::Reset()
 	mixMat = glm::rotate(mixMat, glm::radians(rotateval), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(transformLocate, 1, GL_FALSE, glm::value_ptr(mixMat));
 }
-
 /**********************************************************************************************/
 
 /*****************************************GL관련 함수들****************************************/
@@ -127,7 +165,6 @@ GLvoid Reshape(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-
 GLvoid Keyboard(unsigned char button, int x, int y)
 {
 	/*switch (button)
@@ -137,9 +174,18 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 	glutPostRedisplay();
 }
 
-
 GLvoid TimerFunction(int value)
 {
+	/*생성*/
+	for (int i = 0; i < 100; i++)
+	{
+		if (GetAlive == false)
+		{
+			object[i].SetAlive(true);
+			object[i].SetArray();
+			break;
+		}
+	}
 	/*회전*/
 	rotateval += 10.0f;
 
@@ -147,9 +193,8 @@ GLvoid TimerFunction(int value)
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(50, TimerFunction, 1);
+	glutTimerFunc(1000, TimerFunction, 1);
 }
-
 /**********************************************************************************************/
 
 
