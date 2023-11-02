@@ -11,9 +11,9 @@ using namespace std;
 random_device seeder;
 const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
-uniform_int_distribution<int> randColor(1, 3);
+uniform_int_distribution<int> randColor(1, 5);
 uniform_int_distribution<int> polygonType(3, 6);
-uniform_real_distribution<double> randPosition(0.0f, 1.0f);
+uniform_real_distribution<double> randPosition(-1.0f, 1.0f);
 
 /*셰이더 프로그램 변수*/
 GLuint shaderID;
@@ -21,13 +21,15 @@ GLuint vertexShader;
 GLuint fragmentShader;
 
 /*체크 변수*/
+bool objectMode;
 float rotateval = 0.0f;
 
 enum {
 	RED = 1,
 	GREEN = 2,
 	BLUE = 3,
-	CYAN = 4
+	CYAN = 4,
+	YELLOW = 5
 };
 
 class Cobject
@@ -37,8 +39,8 @@ public:
 	{
 		_objectType = polygonType(eng);
 		_colorType = randColor(eng);
-		_positionX = randPosition(eng);
-		_positionY = randPosition(eng);
+		_positionX = (float)randPosition(eng);
+		_positionY = (float)randPosition(eng);
 	};
 
 	/*버퍼 초기화*/

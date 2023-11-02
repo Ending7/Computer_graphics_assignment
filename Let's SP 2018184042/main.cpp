@@ -33,11 +33,12 @@ int main(int argc, char** argv)
 	/*셰이더 프로그램*/
 	make_shaderProgram();
 	/*객체 초기화*/
-	InitObject();
+
 	/*vao에 vbo연결하기*/
 	InitBuffer();
 	/*그 외*/
-	/*glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
+	printf("[m]: 도형의 모드: LINE/FILL\n");
+	printf("[q]: 프로그램 종료\n");
 
 	/*********콜백 함수(운영체제 호출 함수) 호출하기*********/
 	glutDisplayFunc(drawScene); 

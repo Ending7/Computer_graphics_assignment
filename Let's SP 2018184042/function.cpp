@@ -6,15 +6,12 @@ using namespace std;
 /***************************************일반 함수들*************************************/
 void InitObject() //오브젝트 소환
 {
-	
+
 }
 
 void InitBuffer()
 {
-	for (int i = 0; i < 100; i++)
-	{
-		object[i].InitBuffer();
-	}
+
 }
 
 void Draw()
@@ -36,9 +33,10 @@ void Cobject::Draw()
 	if (_Alive == true)
 	{
 		glBindVertexArray(_vao);
-		Reset();	
+		Reset();
 		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
+
 }
 
 /*VAO 설정*/
@@ -93,8 +91,8 @@ void Cobject::SetArray()
 	case RED:
 		for (int i = 0; i < _objectType; i++)
 		{
-			_colorArr[i][0] = 0.0f;
-			_colorArr[i][1] = 1.0f;
+			_colorArr[i][0] = 1.0f;
+			_colorArr[i][1] = 0.0f;
 			_colorArr[i][2] = 0.0f;
 		}
 		break;
@@ -110,14 +108,22 @@ void Cobject::SetArray()
 		for (int i = 0; i < _objectType; i++)
 		{
 			_colorArr[i][0] = 0.0f;
-			_colorArr[i][1] = 1.0f;
-			_colorArr[i][2] = 0.0f;
+			_colorArr[i][1] = 0.0f;
+			_colorArr[i][2] = 1.0f;
 		}
 		break;
 	case CYAN:
 		for (int i = 0; i < _objectType; i++)
 		{
-			_colorArr[i][0] = 0.0f;
+			_colorArr[i][0] = 1.0f;
+			_colorArr[i][1] = 0.0f;
+			_colorArr[i][2] = 1.0f;
+		}
+		break;
+	case YELLOW:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 1.0f;
 			_colorArr[i][1] = 1.0f;
 			_colorArr[i][2] = 0.0f;
 		}
@@ -167,10 +173,17 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Keyboard(unsigned char button, int x, int y)
 {
-	/*switch (button)
+	switch (button)
 	{
+	case 'm':
+		objectMode = !objectMode;
+		objectMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
 
-	}*/
+	case 'q':
+		exit(1);
+		break;
+	}
 	glutPostRedisplay();
 }
 
@@ -179,15 +192,16 @@ GLvoid TimerFunction(int value)
 	/*생성*/
 	for (int i = 0; i < 100; i++)
 	{
-		if (GetAlive == false)
+		if (object[i].GetAlive() == false)
 		{
 			object[i].SetAlive(true);
 			object[i].SetArray();
+			object[i].InitBuffer();
 			break;
 		}
 	}
-	/*회전*/
-	rotateval += 10.0f;
+	///*회전*/
+	//rotateval += 10.0f;
 
 	/*Update와 Draw호출*/
 	glutPostRedisplay();
