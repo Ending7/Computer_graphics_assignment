@@ -13,6 +13,7 @@ const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
 uniform_int_distribution<int> randColor(1, 5);
 uniform_int_distribution<int> polygonType(3, 6);
+uniform_int_distribution<int> moveType(1, 2);
 uniform_real_distribution<double> randPosition(-1.0f, 1.0f);
 
 /*셰이더 프로그램 변수*/
@@ -37,27 +38,35 @@ class Cobject
 public:
 	Cobject()
 	{
-		_objectType = polygonType(eng);
-		_colorType = randColor(eng);
-		_positionX = (float)randPosition(eng);
-		_positionY = (float)randPosition(eng);
+		
 	};
 
 	/*버퍼 초기화*/
 	void InitBuffer();
 
-	/*객체 초기화*/
-	void SetAlive(bool alive);
-	void SetArray();
-
-	/*상태 확인*/
-	bool GetAlive();
-
 	/*그리기*/
 	void Draw();
 
-	/*변환*/
+	/*객체 초기화*/
+	void SetAlive(bool alive);
+	void ObjectReset();
+	void SetArray();
+	
+	/*상태 확인*/
+	bool GetAlive();
+
+	/*상태 변환*/
+	void Create();
+	void Move();
+	
+
+	/*행렬 변환*/
 	void Reset();
+
+	~Cobject()
+	{
+
+    }
 
 private:
 	/*배열 관련*/
@@ -69,6 +78,9 @@ private:
 	bool _Alive = false;
 	int _objectType;
 	int _colorType;
-	float _positionX, _positionY;
+	int _moveType;
+	float _moveT;
+	float _positionX1, _positionY1, _positionX2, _positionY2;
+	float tempX, tempY;
 };
 Cobject object[100];

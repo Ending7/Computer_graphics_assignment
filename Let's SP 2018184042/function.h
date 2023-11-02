@@ -18,6 +18,8 @@ void InitBuffer(); // vao, vbo 연결
 void Draw(); // 그리기
 
 /*상태 변화 함수*/
+void Move();
+void Create();
 
 /*일반 함수*/
 
@@ -25,4 +27,5 @@ void Draw(); // 그리기
 GLvoid drawScene(GLvoid);
 GLvoid Reshape(int w, int h);
 GLvoid Keyboard(unsigned char button, int x, int y);
-GLvoid TimerFunction(int value);
+GLvoid TimerCreate(int value);
+GLvoid TimerMove(int value);

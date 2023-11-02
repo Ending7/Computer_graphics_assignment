@@ -21,6 +21,28 @@ void Draw()
 		object[i].Draw();
 	}
 }
+
+void Create()
+{
+	for (int i = 0; i < 100; i++)
+	{
+		if (object[i].GetAlive() == false)
+		{
+			object[i].Create();
+			break;
+		}
+	}
+}
+
+void Move() 
+{
+	for (int i = 0; i < 100; i++)
+	{
+		
+			object[i].Move();
+		
+	}
+}
 /**********************************************************************************************/
 
 /*************************************클래스 함수(도형 제작)***********************************/
@@ -37,6 +59,70 @@ void Cobject::Draw()
 		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
 
+}
+
+/*도형 생성*/
+void Cobject::Create()
+{
+	/*생성*/	
+	SetAlive(true);
+	ObjectReset();
+	SetArray();
+	InitBuffer();
+}
+
+/*도형 이동*/
+void Cobject::Move()
+{
+	if (_Alive == true)
+	{
+		switch (_moveType)
+		{
+		case 1:
+			_positionX1 = (1 - _moveT) * tempX + _moveT * _positionX2;
+			_positionY1 = (1 - _moveT) * tempY + _moveT * _positionY2;
+			_moveT += 0.001f;
+			if (_moveT >= 1.0f)
+				_Alive = false;
+			SetArray();
+			InitBuffer();			
+			break;
+
+		case 2:
+			_positionX2 = (1 - _moveT) * tempX + _moveT * _positionX1;
+			_positionY2 = (1 - _moveT) * tempY + _moveT * _positionY1;
+			_moveT += 0.001f;
+			if (_moveT >= 1.0f)
+				_Alive = false;
+			SetArray();
+			InitBuffer();
+			break;
+		}
+	}
+}
+
+void Cobject::ObjectReset()
+{
+	_objectType = polygonType(eng);
+	_colorType = randColor(eng);
+	_moveType = moveType(eng);
+	_moveT = 0.0f;
+	_positionX1 = -1.2f;
+	_positionX2 = 1.2f;
+	_positionY1 = (float)randPosition(eng);
+	_positionY2 = (float)randPosition(eng);
+
+	/*_moveType1 = 왼->오, moveType2 = 오->왼*/
+	if (_moveType == 1)
+	{
+		tempX = _positionX1;
+		tempY = _positionY1;
+	}
+	else if (_moveType == 2)
+	{
+		tempX = _positionX2;
+		tempY = _positionY2;
+	}
 }
 
 /*VAO 설정*/
@@ -80,10 +166,19 @@ void Cobject::SetArray()
 	for (int i = 0; i < _objectType; i++)
 	{
 		float angle = 2 * glm::pi<float>() * i / _objectType;
-		_objectArr[i][0] = _positionX + 0.175f * glm::cos(angle);
-		_objectArr[i][1] = _positionY + 0.175f * glm::sin(angle);
-		_objectArr[i][2] = 0.0f;
-			
+		switch (_moveType )
+		{
+		case 1:
+			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle);
+			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle);
+			_objectArr[i][2] = 0.0f;
+			break;
+		case 2:
+			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle);
+			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle);
+			_objectArr[i][2] = 0.0f;
+			break;
+		}
 	}
 
 	switch (_colorType)
@@ -159,6 +254,7 @@ GLvoid drawScene()
 	/*셰이더 프로그램 사용*/
 	glUseProgram(shaderID);
 
+	
 	/*그리기*/
 	Draw();
 
@@ -187,27 +283,28 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 	glutPostRedisplay();
 }
 
-GLvoid TimerFunction(int value)
+GLvoid TimerCreate(int value)
 {
 	/*생성*/
-	for (int i = 0; i < 100; i++)
-	{
-		if (object[i].GetAlive() == false)
-		{
-			object[i].SetAlive(true);
-			object[i].SetArray();
-			object[i].InitBuffer();
-			break;
-		}
-	}
-	///*회전*/
-	//rotateval += 10.0f;
+	Create();
 
 	/*Update와 Draw호출*/
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(1000, TimerFunction, 1);
+	glutTimerFunc(3000, TimerCreate, 1);
+}
+
+GLvoid TimerMove(int value)
+{
+	/*이동*/
+	Move();
+
+	/*Update와 Draw호출*/
+	glutPostRedisplay();
+
+	/*타이머 무한 반복*/
+	glutTimerFunc(10, TimerMove, 1);
 }
 /**********************************************************************************************/
 

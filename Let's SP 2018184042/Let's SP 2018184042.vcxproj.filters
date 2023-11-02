@@ -13,27 +13,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일\shader</Filter>
-    </ClCompile>
     <ClCompile Include="function.cpp">
-      <Filter>소스 파일\shader</Filter>
+      <Filter>소스 파일\Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일\Source Code</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertex.glsl">
-      <Filter>소스 파일\Source Code</Filter>
-    </None>
     <None Include="fragment.glsl">
-      <Filter>소스 파일\Source Code</Filter>
+      <Filter>소스 파일\shader</Filter>
+    </None>
+    <None Include="vertex.glsl">
+      <Filter>소스 파일\shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="function.h">
-      <Filter>소스 파일\shader</Filter>
+      <Filter>소스 파일\Source Code</Filter>
     </ClInclude>
     <ClInclude Include="header.h">
-      <Filter>소스 파일\shader</Filter>
+      <Filter>소스 파일\Source Code</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
