@@ -37,6 +37,10 @@ enum {
 	YELLOW = 5
 };
 
+enum {
+	LEFT = 0,
+	RIGHT = 1,
+};
 /**********도형**********/
 class Cobject
 {
@@ -62,7 +66,7 @@ public:
 	bool GetAlive();
 
 	/*상태 변화*/
-	void Move();
+	void ObjectMove();
 	void ShowPath();
 
 	/*행렬 변환*/
@@ -162,11 +166,16 @@ public:
 private:
 	/*배열 관련*/
 	GLuint _vao, _vbo[2];
+	float positionX1 = 0.0f;
 	float _bucketArr[4][3] = { 0.0f };
 	float _colorArr[4][3] = { {0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f } };
-
+	float _lineX = -0.8f, _lineX2 = 0.8f; //바구니가 이동할 경로
+	float _moveT = 0.5f; //가운데서부터 선형보간
+	
 	/*상태 변화 관련*/
 	bool _Alive = false;
 	bool _MouseClick = false;
+	int _moveArrow = RIGHT;
+
 };
 Cbucket bucket;

@@ -55,14 +55,16 @@ void Collider()
 	}
 }
 /*도형 이동*/
-void Move() 
+void ObjectMove() 
 {
 	for (int i = 0; i < 100; i++)
-	{
-		
-			object[i].Move();
-		
+	{	
+			object[i].ObjectMove();
 	}
+}
+void BucketMove()
+{
+	bucket.BucketMove();
 }
 /**********************************************************************************************/
 
@@ -119,7 +121,7 @@ void Cobject::Create()
 	InitBuffer();
 }
 /*도형 이동*/
-void Cobject::Move()
+void Cobject::ObjectMove()
 {
 	if (_Alive == true)
 	{
@@ -146,6 +148,29 @@ void Cobject::Move()
 			break;
 		}
 	}
+}
+void Cbucket::BucketMove()
+{
+	/*선형보간*/
+	positionX1 = (1 - _moveT) * _lineX + _moveT * _lineX2;
+	/*방향 전환*/
+	if (_moveT >= 1.0f)
+		_moveArrow = LEFT;
+	else if (_moveT <= 0.0f)
+		_moveArrow = RIGHT;
+
+	/*방향에 따른 이동*/
+	if (_moveArrow == LEFT)
+	{
+		_moveT -= 0.005f;
+	}
+	else if (_moveArrow == RIGHT)
+	{
+		_moveT += 0.005f;
+	}
+	/*버퍼에 배열 값 업데이트*/
+	SetArray();
+	InitBucketBuffer();
 }
 /*도형 초기화*/
 void Cobject::ObjectReset()
@@ -401,17 +426,17 @@ void Cobject::SetArray()
 void Cbucket::SetArray()
 {
 	/*좌상*/
-	_bucketArr[0][0] = -0.2f;
+	_bucketArr[0][0] = positionX1 -0.2f;
 	_bucketArr[0][1] = -0.8f;
 	/*좌하*/
-	_bucketArr[1][0] = -0.2f;
-	_bucketArr[1][1] = -0.9f;
+	_bucketArr[1][0] = positionX1 - 0.2f;
+	_bucketArr[1][1] = - 0.9f;
 	/*우하*/
-	_bucketArr[2][0] = 0.2f;
+	_bucketArr[2][0] = positionX1 + 0.2f;
 	_bucketArr[2][1] = -0.9f;
 	/*우상*/
-	_bucketArr[3][0] = 0.2f;
-	_bucketArr[3][1] = -0.8f;
+	_bucketArr[3][0] = positionX1 + 0.2f;
+	_bucketArr[3][1] =  -0.8f;
 }
 /**********************************************************************************************/
 
@@ -540,7 +565,7 @@ GLvoid Motion(int x, int y)
 	}
 	glutPostRedisplay();
 }
-GLvoid TimerCreate(int value)
+GLvoid TimerObjectCreate(int value)
 {
 	/*생성*/
 	Create();
@@ -549,18 +574,29 @@ GLvoid TimerCreate(int value)
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(2000, TimerCreate, 1);
+	glutTimerFunc(2000, TimerObjectCreate, 1);
 }
-GLvoid TimerMove(int value)
+GLvoid TimerObjectMove(int value)
 {
 	/*이동*/
-	Move();
+	ObjectMove();
 
 	/*Update와 Draw호출*/
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(timerSpeed, TimerMove, 1);
+	glutTimerFunc(timerSpeed, TimerObjectMove, 1);
+}
+GLvoid TimerBucketMove(int value)
+{
+	/*이동*/
+	BucketMove();
+
+	/*Update와 Draw호출*/
+	glutPostRedisplay();
+
+	/*타이머 무한 반복*/
+	glutTimerFunc(10, TimerBucketMove, 1);
 }
 /**********************************************************************************************/
 

@@ -47,8 +47,9 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(Keyboard);
 	glutMouseFunc(Mouse);
 	glutMotionFunc(Motion);
-	glutTimerFunc(10, TimerCreate, 1);
-	glutTimerFunc(10, TimerMove, 1);
+	glutTimerFunc(10, TimerObjectCreate, 1);
+	glutTimerFunc(10, TimerObjectMove, 1);
+	glutTimerFunc(10, TimerBucketMove, 1);
 	glutMainLoop();
 
 	return 0;
