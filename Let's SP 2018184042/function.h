@@ -17,12 +17,15 @@ void InitBucket(); //객체 초기화
 void Draw(); // 그리기
 void ShowPath(); //경로 그리기
 void DrawLine(); //슬라이스 라인 그리기
+void DrawSliceObject(); //잘린 도형 그리기
 
 /*상태 변화 함수*/
 void Create();
 void Collider();
 void ObjectMove();
 void BucketMove();
+void SliceObjectMove();
+
 /*일반 함수*/
 
 /*콜백 함수*/
@@ -33,4 +36,4 @@ GLvoid Mouse(int button, int state, int x, int y);
 GLvoid Motion(int x, int y);
 GLvoid TimerObjectCreate(int value);
 GLvoid TimerObjectMove(int value);
-GLvoid TimerBucketMove(int value);
+GLvoid TimerOtherMove(int value);

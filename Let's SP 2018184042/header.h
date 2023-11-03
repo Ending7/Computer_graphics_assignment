@@ -12,7 +12,7 @@ random_device seeder;
 const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
 uniform_int_distribution<int> randColor(1, 5);
-uniform_int_distribution<int> polygonType(3, 6);
+uniform_int_distribution<int> polygonType(3, 3);
 uniform_int_distribution<int> moveType(1, 2);
 uniform_real_distribution<double> randPosition(-0.5f, 1.0f);
 
@@ -73,6 +73,7 @@ public:
 	bool GetAlive();
 	void GetArray(float objectArr[6][3]);
 	int GetType();
+	int GetColorType();
 
 	/*상태 변화*/
 	void ObjectMove();
@@ -190,3 +191,45 @@ private:
 
 };
 Cbucket bucket;
+
+/**********슬라이스 오브젝트**********/
+class CsliceObject
+{
+public:
+	CsliceObject()
+	{
+
+	};
+	/*버퍼 초기화*/
+	void InitSliceObject();
+
+	/*그리기*/
+	void DrawSliceObject();
+
+	/*객체 초기화*/
+	void SetAlive(bool alive);
+	void SetArray(int vertexType1, int vertexType2, float finalx, float finaly, float finalx2, float finaly2, int objectType, int objectCount, float objectArr[6][3], int colorType);
+
+	/*상태 확인*/
+	bool GetAlive();
+
+	/*상태 변화*/
+	void SliceObjectMove();
+	void SliceObjectReset();
+
+	~CsliceObject()
+	{
+
+	};
+private:
+	/*배열 관련*/
+	GLuint _vao, _vbo[2];
+	float _sliceObjectArr[6][3] = { 0.0f };
+	float _colorArr[6][3] = { 0.0f };
+
+	/*상태 변화 관련*/
+	bool _Alive = false;
+	int _objectType;
+	float _fallDown = -0.001f;
+};
+CsliceObject sliceObject[20];

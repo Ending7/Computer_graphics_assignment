@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	glutMotionFunc(Motion);
 	glutTimerFunc(10, TimerObjectCreate, 1);
 	glutTimerFunc(10, TimerObjectMove, 1);
-	glutTimerFunc(10, TimerBucketMove, 1);
+	glutTimerFunc(10, TimerOtherMove, 1);
 	glutMainLoop();
 
 	return 0;

@@ -32,6 +32,14 @@ void DrawLine()
 {
 	line.DrawLine();
 }
+/*잘린 도형 그리기*/
+void DrawSliceObject()
+{
+	for (int i = 0; i < 20; i++)
+	{
+		sliceObject[i].DrawSliceObject();
+	}
+}
 /*도형 생성*/
 void Create()
 {
@@ -55,115 +63,194 @@ void Collider()
 
 		/*충돌처리*/
 		for (int i = 0; i < 10; i++)
-		{		
-			/*1.슬라이스 선분 배열을 꺼내온다.*/
-			float sliceLineArr[2][3] = { 1.0f };
-			line.GetArray(sliceLineArr);
-
-			/*2.도형의 배열을 꺼내온다.*/		
-			float objectArr[6][3] = { 1.0f };
-			object[i].GetArray(objectArr);
-
-			/*3.도형의 타입을 가져온다.*/		
-			int objectType = 0;
-			objectType = object[i].GetType();
-
-			/*4. 먼저 슬라이스 선의 x, y를 추출한다.*/
-			float x1 = sliceLineArr[0][0];
-			float y1 = sliceLineArr[0][1];
-			float x2 = sliceLineArr[1][0];
-			float y2 = sliceLineArr[1][1];
-			int count = 0;
-			
-			/*5. 이어서 도형의 모든 선분의 직선의 방정식을 구하고
-			교점의 방정식을 이용하여 교점의 개수와 교점을 구한다.
-			2개면 이어서 충돌처리하고, 아니면 continue해서 다음 도형 검사*/
-			switch (objectType)
+		{
+			if (object[i].GetAlive() == true)
 			{
-			case TRIANGLE:
-				for (int i = 0; i < 3; i++)
+				/*1.슬라이스 선분 배열을 꺼내온다.*/
+				float sliceLineArr[2][3] = { 1.0f };
+				line.GetArray(sliceLineArr);
+
+				/*2.도형의 배열을 꺼내온다.*/
+				float objectArr[6][3] = { 1.0f };
+				object[i].GetArray(objectArr);
+
+				/*3.도형의 타입을 가져온다.*/
+				int objectType = 0, colorType = 0;
+				objectType = object[i].GetType();
+				colorType = object[i].GetColorType();
+
+				/*4. 먼저 슬라이스 선의 x, y를 추출한다.*/
+				float x1 = sliceLineArr[0][0];
+				float y1 = sliceLineArr[0][1];
+				float x2 = sliceLineArr[1][0];
+				float y2 = sliceLineArr[1][1];
+				int vertexType1 = 0;
+				int vertexType2 = 0;
+				float finalx = 0.0f, finaly = 0.0f;
+				float finalx2 = 0.0f, finaly2 = 0.0f;
+
+				/*교점의 개수*/
+				int count = 0;
+
+				/*5. 이어서 도형의 모든 선분의 직선의 방정식을 구하고
+				교점의 방정식을 이용하여 교점의 개수와 교점을 구한다.
+				2개면 이어서 충돌처리하고, 아니면 continue해서 다음 도형 검사*/
+				switch (objectType)
 				{
-					float t, s, _t, _s, under;
-					/*첫번째 변 추출*/
-					float x3 = objectArr[i][0];
-					float y3 = objectArr[i][1];
-					float x4 = objectArr[i+1][0];
-					float y4 = objectArr[i+1][1];
-					/*i==3일 때 x4, y4는 맨 처음 정점*/
-					if (i == 2)
+				case TRIANGLE:
+					for (int i = 0; i < 3; i++)
 					{
-						x4 = objectArr[0][0];
-						y4 = objectArr[0][1];
+						float t, s, _t, _s, under;
+						/*첫번째 변 추출*/
+						float x3 = objectArr[i][0];
+						float y3 = objectArr[i][1];
+						float x4 = objectArr[i + 1][0];
+						float y4 = objectArr[i + 1][1];
+						/*i==3일 때 x4, y4는 맨 처음 정점*/
+						if (i == 2)
+						{
+							x4 = objectArr[0][0];
+							y4 = objectArr[0][1];
+						}
+						/*분모*/
+						under = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+						if (under == 0) //분모가 0이면 평행이다
+						{
+							continue;
+						}
+						/*분자*/
+						_t = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+						_s = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+						/*최종 공식*/
+						t = _t / under;
+						s = _s / under;
+						if (t < 0.0 || t>1.0 || s < 0.0 || s>1.0)
+						{
+							continue;
+						}
+						if (_t == 0 && _s == 0)
+						{
+							continue;
+						}
+						/*최종적으로 finalx, finaly에 두 교점이 들어간다.*/
+						if (finalx == 0.0f)
+						{
+							finalx = x1 + t * (x2 - x1);
+							finaly = y1 + t * (y2 - y1);
+						}
+						else
+						{
+							finalx2 = x1 + t * (x2 - x1);
+							finaly2 = y1 + t * (y2 - y1);
+						}
+						/*두 교점이 어떤 변에 들어 있는 점인지를 파악해야 한다.*/
+						switch (i)
+						{
+						case 0:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 0;
+							}
+							else
+							{
+								vertexType2 = 0;
+							}
+							break;
+						case 1:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 1;
+							}
+							else
+							{
+								vertexType2 = 1;
+							}
+							break;
+						case 2:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 2;
+							}
+							else
+							{
+								vertexType2 = 2;
+							}
+							break;
+						}
+						count += 1;
 					}
-					/*분모*/
-					under = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-					if (under == 0) //분모가 0이면 평행이다
-					{
-						continue;
-					}
-					/*분자*/
-					_t = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
-					_s = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
-					/*최종 공식*/
-					t = _t / under;
-					s = _s / under;
-					if (t < 0.0 || t>1.0 || s < 0.0 || s>1.0)
-					{
-						continue;
-					}
-					if (_t == 0 && _s == 0)
-					{
-						continue;
-					}
-					float finalx = x1 + t * (x2 - x1);
-					float finaly = y1 + t * (y2 - y1);
-					count += 1;
+					break;
+				case RECTANGLE:
+
+					break;
+				case PENTAGON:
+
+					break;
+				case HEXAGON:
+
+					break;
 				}
-				break;
-			case RECTANGLE:
 
-				break;
-			case PENTAGON:
+				/*교점이 두개라면 도형을 자르고 잘린 부분을 다른
+				클래스에 넣는다.*/
+				if (count == 2)
+				{
+					int objectCount = 0;
+					printf("count:2, ");
+					switch (objectType)
+					{
+					case TRIANGLE:
+						printf("TRIANGLE, ");
+						for (int i = 0; i < 20; i++)
+						{
+							/*비어있는 슬라이스 오브젝트를 찾아보자.*/
+							if (sliceObject[i].GetAlive() == false)
+							{
+								printf("objecCount, i: %d, %d\n", objectCount, i);
+								/*살아있는 오브젝트로 변환*/
+								sliceObject[i].SetAlive(true);
+								sliceObject[i].SetArray(vertexType1, vertexType2, finalx, finaly, finalx2, finaly2, objectType, objectCount, objectArr, colorType);
+								sliceObject[i].InitSliceObject();
+								++objectCount;
+							}
 
-				break;
-			case HEXAGON:
+							if (objectCount == 2)
+							{
+								break;
+							}
+						}
+						break;
+					}
 
-				break;
-			}
-			
-			if (count == 2)
-				object[i].SetAlive(false);
-
-			///*디버깅*/
-			//for (int i = 0; i < 2; i++)
-			//{
-			//	printf("%f\n", sliceLineArr[i][0]);
-			//	printf("%f\n\n\n", sliceLineArr[i][1]);
-			//}
-			//for (int i = 0; i < 6; i++)
-			//{
-			//	printf("%f\n", objectArr[i][0]);
-			//	printf("%f\n\n\n", objectArr[i][1]);
-			//}
-			//printf("objecType:%d", objectType);
+					/*기존의 도형을 지운다*/
+					/*printf("삼각형의 교점Type: %d, %d", vertexType1, vertexType2);*/
+					object[i].SetAlive(false);
+				}
+			}	
 		}
-
 		/*충돌처리 마쳤으면 _alive == false*/
 		line.ResetLineArray(); //선 초기화
 		line.SetAlive(false);
 	}
 }
 /*도형 이동*/
-void ObjectMove() 
+void ObjectMove()
 {
-	for (int i = 0; i < 20; i++)
-	{	
-			object[i].ObjectMove();
+	for (int i = 0; i < 10; i++)
+	{
+		object[i].ObjectMove();
 	}
 }
 void BucketMove()
 {
 	bucket.BucketMove();
+}
+void SliceObjectMove()
+{
+	for (int i = 0; i < 20; i++)
+	{
+		sliceObject[i].SliceObjectMove();
+	}
 }
 /**********************************************************************************************/
 
@@ -182,7 +269,7 @@ void Cobject::Draw()
 		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
 
-} 
+}
 void Cobject::ShowPath()
 {
 	if (_Alive == true)
@@ -191,7 +278,7 @@ void Cobject::ShowPath()
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
-} 
+}
 void Cline::DrawLine()
 {
 	if (_Alive == true)
@@ -200,7 +287,7 @@ void Cline::DrawLine()
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
-} 
+}
 void Cbucket::DrawBucket()
 {
 	if (_Alive == true)
@@ -210,10 +297,19 @@ void Cbucket::DrawBucket()
 		glDrawArrays(GL_POLYGON, 0, 4);
 	}
 }
+void CsliceObject::DrawSliceObject()
+{
+	if (_Alive == true)
+	{
+		InitSliceObject();
+		glBindVertexArray(_vao);
+		glDrawArrays(GL_POLYGON, 0, _objectType);
+	}
+}
 /*도형 생성*/
 void Cobject::Create()
 {
-	/*생성*/	
+	/*생성*/
 	SetAlive(true);
 	ObjectReset();
 	SetArray();
@@ -233,7 +329,7 @@ void Cobject::ObjectMove()
 			if (_moveT >= 1.0f)
 				_Alive = false;
 			SetArray();
-			InitBuffer();			
+			InitBuffer();
 			break;
 
 		case 2:
@@ -270,6 +366,31 @@ void Cbucket::BucketMove()
 	/*버퍼에 배열 값 업데이트*/
 	SetArray();
 	InitBucketBuffer();
+}
+void CsliceObject::SliceObjectMove()
+{
+	if (_Alive == true)
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			/*배열에서 0.0f는 존재하지 않는 좌표라는 것*/
+			if (_sliceObjectArr[i][1] != 0.0f)
+			{
+				_sliceObjectArr[i][1] += _fallDown;
+			}
+
+			/*화면 밖으로 완전히 사라지면 제거*/
+			if (_sliceObjectArr[i][1] < -1.2f)
+			{
+				/*초기화*/
+				SliceObjectReset();
+				_Alive = false;
+			}
+		}
+
+		/*중력 가속도*/
+		_fallDown -= 0.0001f;
+	}
 }
 /*도형 초기화*/
 void Cobject::ObjectReset()
@@ -309,6 +430,25 @@ void Cobject::ObjectReset()
 		_pathArr[1][1] = _positionY1;
 		_pathArr[1][2] = 0.0f;
 	}
+}
+void CsliceObject::SliceObjectReset()
+{
+	/*배열 초기화*/
+	for (int i = 0; i < 6; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			_sliceObjectArr[i][j] = 0.0f;
+			_colorArr[i][j] = 0.0f;
+		}
+	}
+
+	/*비활성화*/
+	_Alive = false;
+
+	/*나머지 초기화*/
+	_fallDown = -0.001f;
+	_objectType = 0;
 }
 /*선 초기화*/
 void Cline::ResetLineArray()
@@ -428,6 +568,30 @@ void Cbucket::InitBucketBuffer()
 	glEnableVertexAttribArray(pAttribute);
 	glEnableVertexAttribArray(cAttribute);
 }
+void CsliceObject::InitSliceObject()
+{
+	GLint pAttribute = glGetAttribLocation(shaderID, "in_Position");
+	GLint cAttribute = glGetAttribLocation(shaderID, "in_Color");
+
+	/*create buffer*/
+	glGenVertexArrays(1, &_vao);
+	glGenBuffers(2, _vbo);
+
+	/*vao binding*/
+	glBindVertexArray(_vao);
+
+	/*vbo binding*/
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_sliceObjectArr), _sliceObjectArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(pAttribute);
+	glEnableVertexAttribArray(cAttribute);
+}
 /*도형 활성화*/
 void Cobject::SetAlive(bool alive)
 {
@@ -457,13 +621,20 @@ void Cbucket::SetAlive(bool alive)
 	else
 		_Alive = false;
 }
+void CsliceObject::SetAlive(bool alive)
+{
+	if (alive == true)
+		_Alive = true;
+	else
+		_Alive = false;
+}
 /*vertex, color 배열 할당*/
 void Cobject::SetArray()
 {
 	for (int i = 0; i < _objectType; i++)
 	{
 		float angle = 2 * glm::pi<float>() * i / _objectType;
-		switch (_moveType )
+		switch (_moveType)
 		{
 		case 1:
 			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle);
@@ -525,17 +696,147 @@ void Cobject::SetArray()
 void Cbucket::SetArray()
 {
 	/*좌상*/
-	_bucketArr[0][0] = positionX1 -0.2f;
+	_bucketArr[0][0] = positionX1 - 0.2f;
 	_bucketArr[0][1] = -0.8f;
 	/*좌하*/
 	_bucketArr[1][0] = positionX1 - 0.2f;
-	_bucketArr[1][1] = - 0.9f;
+	_bucketArr[1][1] = -0.9f;
 	/*우하*/
 	_bucketArr[2][0] = positionX1 + 0.2f;
 	_bucketArr[2][1] = -0.9f;
 	/*우상*/
 	_bucketArr[3][0] = positionX1 + 0.2f;
-	_bucketArr[3][1] =  -0.8f;
+	_bucketArr[3][1] = -0.8f;
+}
+void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, float finaly, float finalx2, float finaly2, int objectType, int objectCount, float objectArr[6][3], int colorType)
+{
+	switch (objectType)
+	{
+	case TRIANGLE:
+		if (vertexType1 == 1 && vertexType2 == 2)
+		{
+			if (objectCount == 0)
+			{	
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[2][0];
+				_sliceObjectArr[0][1] = objectArr[2][1] - 0.01f;
+				_sliceObjectArr[1][0] = finalx;
+				_sliceObjectArr[1][1] = finaly- 0.01f;
+				_sliceObjectArr[2][0] = finalx2;
+				_sliceObjectArr[2][1] = finaly2- 0.01f;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[0][0]+0.01f;
+				_sliceObjectArr[0][1] = objectArr[0][1];
+				_sliceObjectArr[1][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[1][1] = objectArr[1][1];
+				_sliceObjectArr[2][0] = finalx + 0.01f;
+				_sliceObjectArr[2][1] = finaly;
+				_sliceObjectArr[3][0] = finalx2 + 0.01f;
+				_sliceObjectArr[3][1] = finaly2;
+				_objectType = RECTANGLE;
+			}
+		}
+		else if (vertexType1 == 2 && vertexType2 == 0)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[0][0];
+				_sliceObjectArr[0][1] = objectArr[0][1] - 0.01f;
+				_sliceObjectArr[1][0] = finalx;
+				_sliceObjectArr[1][1] = finaly - 0.01f;
+				_sliceObjectArr[2][0] = finalx2;
+				_sliceObjectArr[2][1] = finaly2 - 0.01f;
+				_objectType = TRIANGLE;
+			}
+			if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = objectArr[2][0] + 0.01f;
+				_sliceObjectArr[1][1] = objectArr[2][1];
+				_sliceObjectArr[2][0] = finalx2 + 0.01f;
+				_sliceObjectArr[2][1] = finaly2;
+				_sliceObjectArr[3][0] = finalx + 0.01f;
+				_sliceObjectArr[3][1] = finaly;
+				_objectType = RECTANGLE;
+			}
+		}
+		else if (vertexType1 == 1 && vertexType2 == 0)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[1][0];
+				_sliceObjectArr[0][1] = objectArr[1][1] - 0.01f;
+				_sliceObjectArr[1][0] = finalx;
+				_sliceObjectArr[1][1] = finaly - 0.01f;
+				_sliceObjectArr[2][0] = finalx2;
+				_sliceObjectArr[2][1] = finaly2 - 0.01f;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = finalx+ 0.01f;
+				_sliceObjectArr[0][1] = finaly;
+				_sliceObjectArr[1][0] = finalx2 + 0.01f;
+				_sliceObjectArr[1][1] = finaly2;
+				_sliceObjectArr[2][0] = objectArr[2][0] + 0.01f;
+				_sliceObjectArr[2][1] = objectArr[2][1];
+				_sliceObjectArr[3][0] = objectArr[0][0] + 0.01f;
+				_sliceObjectArr[3][1] = objectArr[0][1];
+				_objectType = RECTANGLE;
+			}
+		}
+		break;
+	}
+
+	switch (colorType)
+	{
+	case RED:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 1.0f;
+			_colorArr[i][1] = 0.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	case GREEN:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	case BLUE:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 0.0f;
+			_colorArr[i][1] = 0.0f;
+			_colorArr[i][2] = 1.0f;
+		}
+		break;
+	case CYAN:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 1.0f;
+			_colorArr[i][1] = 0.0f;
+			_colorArr[i][2] = 1.0f;
+		}
+		break;
+	case YELLOW:
+		for (int i = 0; i < _objectType; i++)
+		{
+			_colorArr[i][0] = 1.0f;
+			_colorArr[i][1] = 1.0f;
+			_colorArr[i][2] = 0.0f;
+		}
+		break;
+	}
 }
 /**********************************************************************************************/
 
@@ -545,6 +846,10 @@ bool Cobject::GetAlive()
 	return _Alive;
 }
 bool Cline::GetAlive()
+{
+	return _Alive;
+}
+bool CsliceObject::GetAlive()
 {
 	return _Alive;
 }
@@ -576,6 +881,10 @@ int Cobject::GetType()
 {
 	return _objectType;
 }
+int Cobject::GetColorType()
+{
+	return _colorType;
+}
 /**********************************************************************************************/
 
 /***************************************클래스 함수(변환)**************************************/
@@ -604,6 +913,9 @@ GLvoid drawScene()
 	/*그리기*/
 	Draw();
 
+	/*잘린 물체 그리기*/
+	DrawSliceObject();
+
 	/*경로 출력하기*/
 	if (showPath == true) {
 		ShowPath();
@@ -611,13 +923,9 @@ GLvoid drawScene()
 
 	/*슬라이스 라인 그리기*/
 	DrawLine();
-	
+
 	/*도형과 충돌 체크*/
 	Collider();
-
-
-		
-
 
 	/*더블 버퍼링(화면 출력)*/
 	glutSwapBuffers();
@@ -710,16 +1018,17 @@ GLvoid TimerObjectMove(int value)
 	/*타이머 무한 반복*/
 	glutTimerFunc(timerSpeed, TimerObjectMove, 1);
 }
-GLvoid TimerBucketMove(int value)
+GLvoid TimerOtherMove(int value)
 {
 	/*이동*/
 	BucketMove();
+	SliceObjectMove();
 
 	/*Update와 Draw호출*/
 	glutPostRedisplay();
 
 	/*타이머 무한 반복*/
-	glutTimerFunc(10, TimerBucketMove, 1);
+	glutTimerFunc(10, TimerOtherMove, 1);
 }
 /**********************************************************************************************/
 
