@@ -40,6 +40,12 @@ void ShowPath()
 	}
 }
 
+/*슬라이스 라인 그리기*/
+void DrawLine()
+{
+	line.DrawLine();
+}
+
 /*도형 생성*/
 void Create()
 {
@@ -50,6 +56,17 @@ void Create()
 			object[i].Create();
 			break;
 		}
+	}
+}
+
+/*슬라이스 라인과 도형 충돌*/
+void Collider()
+{
+	if (line.GetAlive() == true && line.GetMouseClick() == false)
+	{
+		/*충돌처리 하고 _alive == false*/
+		line.ResetLineArray(); //선 초기화
+		line.SetAlive(false);
 	}
 }
 
@@ -88,6 +105,17 @@ void Cobject::ShowPath()
 	if (_Alive == true)
 	{
 		InitPathBuffer();
+		glBindVertexArray(_vao);
+		glDrawArrays(GL_LINES, 0, 2);
+	}
+}
+
+/*슬라이스 라인 그리기*/
+void Cline::DrawLine()
+{
+	if (_Alive == true)
+	{
+		InitLineBuffer();
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
@@ -133,6 +161,7 @@ void Cobject::Move()
 	}
 }
 
+/*도형 초기화*/
 void Cobject::ObjectReset()
 {
 	_objectType = polygonType(eng);
@@ -170,6 +199,30 @@ void Cobject::ObjectReset()
 		_pathArr[1][1] = _positionY1;
 		_pathArr[1][2] = 0.0f;
 	}
+}
+
+/*선 초기화*/
+void Cline::ResetLineArray()
+{
+	_lineArr[0][0] = 0.0f;
+	_lineArr[0][1] = 0.0f;
+	_lineArr[1][0] = 0.0f;
+	_lineArr[1][1] = 0.0f;
+}
+
+/*마우스 클릭 시 선에 좌표 삽입*/
+void Cline::InsertPosition1(float glPosX, float glPosY)
+{
+	_lineArr[0][0] = glPosX;
+	_lineArr[0][1] = glPosY;
+	_lineArr[1][0] = glPosX;
+	_lineArr[1][1] = glPosY;
+}
+
+void Cline::InsertPosition2(float glPosX, float glPosY)
+{
+	_lineArr[1][0] = glPosX;
+	_lineArr[1][1] = glPosY;
 }
 
 /*VAO 설정*/
@@ -221,6 +274,30 @@ void Cobject::InitPathBuffer()
 	glEnableVertexAttribArray(pAttribute);
 	glEnableVertexAttribArray(cAttribute);
 }
+void Cline::InitLineBuffer()
+{
+	GLint pAttribute = glGetAttribLocation(shaderID, "in_Position");
+	GLint cAttribute = glGetAttribLocation(shaderID, "in_Color");
+
+	/*create buffer*/
+	glGenVertexArrays(1, &_vao);
+	glGenBuffers(2, _vbo);
+
+	/*vao binding*/
+	glBindVertexArray(_vao);
+
+	/*vbo binding*/
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_lineArr), _lineArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(pAttribute);
+	glEnableVertexAttribArray(cAttribute);
+}
 
 /*도형 활성화*/
 void Cobject::SetAlive(bool alive)
@@ -229,6 +306,20 @@ void Cobject::SetAlive(bool alive)
 		_Alive = true;
 	else
 		_Alive = false;
+}
+void Cline::SetAlive(bool alive)
+{
+	if (alive == true)
+		_Alive = true;
+	else
+		_Alive = false;
+}
+void Cline::SetMouseClick(bool mouseClick)
+{
+	if (mouseClick == true)
+		_MouseClick = true;
+	else
+		_MouseClick = false;
 }
 
 /*vertex, color*/
@@ -303,6 +394,14 @@ bool Cobject::GetAlive()
 {
 	return _Alive;
 }
+bool Cline::GetAlive()
+{
+	return _Alive;
+}
+bool Cline::GetMouseClick()
+{
+	return _MouseClick;
+}
 /**********************************************************************************************/
 
 /***************************************클래스 함수(변환)**************************************/
@@ -325,13 +424,23 @@ GLvoid drawScene()
 	/*셰이더 프로그램 사용*/
 	glUseProgram(shaderID);
 
-	/*경로 출력하기*/
-	if (showPath == true){
-		ShowPath();
-	}
-		
 	/*그리기*/
 	Draw();
+
+	/*경로 출력하기*/
+	if (showPath == true) {
+		ShowPath();
+	}
+
+	/*슬라이스 라인 그리기*/
+	DrawLine();
+	
+	/*도형과 충돌 체크*/
+	Collider();
+
+
+		
+
 
 	/*더블 버퍼링(화면 출력)*/
 	glutSwapBuffers();
@@ -372,6 +481,37 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 	case 'q':
 		exit(1);
 		break;
+	}
+	glutPostRedisplay();
+}
+
+GLvoid Mouse(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		GLfloat glPosX = (GLfloat)x / 500 - 1;
+		GLfloat glPosY = -((GLfloat)y / 500 - 1);
+
+		line.SetAlive(true);
+		line.SetMouseClick(true);
+		line.InsertPosition1(glPosX, glPosY);
+	}
+
+	else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		line.SetMouseClick(false);
+	}
+
+	glutPostRedisplay();
+}
+
+GLvoid Motion(int x, int y)
+{
+	if (line.GetAlive() == true)
+	{
+		GLfloat glPosX = (GLfloat)x / 500 - 1;
+		GLfloat glPosY = -((GLfloat)y / 500 - 1);
+		line.InsertPosition2(glPosX, glPosY);
 	}
 	glutPostRedisplay();
 }

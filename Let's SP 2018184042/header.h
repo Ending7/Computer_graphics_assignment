@@ -44,7 +44,6 @@ public:
 	{
 		
 	};
-
 	/*버퍼 초기화*/
 	void InitBuffer();
 	void InitPathBuffer();
@@ -56,12 +55,12 @@ public:
 	void SetAlive(bool alive);
 	void ObjectReset();
 	void SetArray();
-	
+	void Create();
+
 	/*상태 확인*/
 	bool GetAlive();
 
 	/*상태 변환*/
-	void Create();
 	void Move();
 	void ShowPath();
 
@@ -71,7 +70,7 @@ public:
 	~Cobject()
 	{
 
-    }
+	};
 
 private:
 	/*배열 관련*/
@@ -90,3 +89,43 @@ private:
 	float _tempX, _tempY;
 };
 Cobject object[100];
+
+class Cline
+{
+public:
+	Cline()
+	{
+		
+	};
+	/*버퍼 초기화*/
+	void InitLineBuffer();
+	void DrawLine();
+
+	/*객체 초기화*/
+	void SetAlive(bool alive);
+	void SetMouseClick(bool mouseClick);
+
+	/*상태 확인*/
+	bool GetAlive();
+	bool GetMouseClick();
+
+	/*상태 변환*/
+	void InsertPosition1(float glPosX, float glPosY);
+	void InsertPosition2(float glPosX, float glPosY);
+	void ResetLineArray();
+
+	~Cline()
+	{
+
+	};
+private:
+	/*배열 관련*/
+	GLuint _vao, _vbo[2];
+	float _lineArr[2][3] = { 0.0f };
+	float _colorArr[2][3] = { {1.0f, 0.0f,0.0f },{1.0f, 0.0f,0.0f }};
+
+	/*상태 변화 관련*/
+	bool _Alive = false;
+	bool _MouseClick = false;
+};
+Cline line;

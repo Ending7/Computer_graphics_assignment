@@ -16,10 +16,13 @@ char* filetobuf(const char* file);
 void InitObject(); //객체 초기화
 void InitBuffer(); // vao, vbo 연결
 void Draw(); // 그리기
+void ShowPath(); ///경로 그리기
+void DrawLine(); //슬라이스 라인 그리기
 
 /*상태 변화 함수*/
-void Move();
 void Create();
+void Collider();
+void Move();
 
 /*일반 함수*/
 
@@ -27,5 +30,7 @@ void Create();
 GLvoid drawScene(GLvoid);
 GLvoid Reshape(int w, int h);
 GLvoid Keyboard(unsigned char button, int x, int y);
+GLvoid Mouse(int button, int state, int x, int y);
+GLvoid Motion(int x, int y);
 GLvoid TimerCreate(int value);
 GLvoid TimerMove(int value);
