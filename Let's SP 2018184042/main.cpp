@@ -32,10 +32,8 @@ int main(int argc, char** argv)
 
 	/*셰이더 프로그램*/
 	make_shaderProgram();
-	/*객체 초기화*/
-
-	/*vao에 vbo연결하기*/
-	InitBuffer();
+	/*바구니*/
+	InitBucket();
 	/*그 외*/
 	printf("[m]: 도형의 모드: LINE/FILL\n");
 	printf("[p]: 경로 출력하기: on/off\n");

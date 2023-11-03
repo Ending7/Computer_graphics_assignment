@@ -13,11 +13,8 @@ void make_shaderProgram();
 char* filetobuf(const char* file);
 
 /*초기화 함수*/
-void InitObject(); //객체 초기화
-void InitBuffer(); // vao, vbo 연결
+void InitBucket(); //객체 초기화
 void Draw(); // 그리기
-void ShowPath(); ///경로 그리기
-void DrawLine(); //슬라이스 라인 그리기
 
 /*상태 변화 함수*/
 void Create();

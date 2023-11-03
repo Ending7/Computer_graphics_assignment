@@ -4,24 +4,13 @@
 using namespace std;
 
 /***************************************일반 함수들*************************************/
-/*초기 오브젝트*/
-void InitObject() //오브젝트 소환
+/*바구니 화면에 바로 출력*/
+void InitBucket()
 {
-
+	bucket.SetAlive(true);
+	bucket.SetArray();
+	bucket.InitBucketBuffer();
 }
-
-/*도형 버퍼 초기화(사용X)*/
-void InitBuffer()
-{
-
-}
-
-/*경로 버퍼 초기화(사용X)*/
-void InitPathBuffer()
-{
-
-}
-
 /*도형 그리기*/
 void Draw()
 {
@@ -30,7 +19,6 @@ void Draw()
 		object[i].Draw();
 	}
 }
-
 /*경로 그리기*/
 void ShowPath()
 {
@@ -39,13 +27,11 @@ void ShowPath()
 		object[i].ShowPath();
 	}
 }
-
 /*슬라이스 라인 그리기*/
 void DrawLine()
 {
 	line.DrawLine();
 }
-
 /*도형 생성*/
 void Create()
 {
@@ -58,7 +44,6 @@ void Create()
 		}
 	}
 }
-
 /*슬라이스 라인과 도형 충돌*/
 void Collider()
 {
@@ -69,7 +54,6 @@ void Collider()
 		line.SetAlive(false);
 	}
 }
-
 /*도형 이동*/
 void Move() 
 {
@@ -83,7 +67,7 @@ void Move()
 /**********************************************************************************************/
 
 /*************************************클래스 함수(도형 제작)***********************************/
-/*밑에서 얻어진 도형을 각 타입에 맞게 화면에 그린다.*/
+/*그리기*/
 void Cobject::Draw()
 {
 	GLint pAttribute = glGetAttribLocation(shaderID, "in_Position");
@@ -97,9 +81,7 @@ void Cobject::Draw()
 		glDrawArrays(GL_POLYGON, 0, _objectType);
 	}
 
-}
-
-/*경로 그리기*/
+} 
 void Cobject::ShowPath()
 {
 	if (_Alive == true)
@@ -108,9 +90,7 @@ void Cobject::ShowPath()
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
-}
-
-/*슬라이스 라인 그리기*/
+} 
 void Cline::DrawLine()
 {
 	if (_Alive == true)
@@ -119,8 +99,16 @@ void Cline::DrawLine()
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
+} 
+void Cbucket::DrawBucket()
+{
+	if (_Alive == true)
+	{
+		InitBucketBuffer();
+		glBindVertexArray(_vao);
+		glDrawArrays(GL_POLYGON, 0, 4);
+	}
 }
-
 /*도형 생성*/
 void Cobject::Create()
 {
@@ -130,7 +118,6 @@ void Cobject::Create()
 	SetArray();
 	InitBuffer();
 }
-
 /*도형 이동*/
 void Cobject::Move()
 {
@@ -160,7 +147,6 @@ void Cobject::Move()
 		}
 	}
 }
-
 /*도형 초기화*/
 void Cobject::ObjectReset()
 {
@@ -200,7 +186,6 @@ void Cobject::ObjectReset()
 		_pathArr[1][2] = 0.0f;
 	}
 }
-
 /*선 초기화*/
 void Cline::ResetLineArray()
 {
@@ -209,7 +194,6 @@ void Cline::ResetLineArray()
 	_lineArr[1][0] = 0.0f;
 	_lineArr[1][1] = 0.0f;
 }
-
 /*마우스 클릭 시 선에 좌표 삽입*/
 void Cline::InsertPosition1(float glPosX, float glPosY)
 {
@@ -218,13 +202,11 @@ void Cline::InsertPosition1(float glPosX, float glPosY)
 	_lineArr[1][0] = glPosX;
 	_lineArr[1][1] = glPosY;
 }
-
 void Cline::InsertPosition2(float glPosX, float glPosY)
 {
 	_lineArr[1][0] = glPosX;
 	_lineArr[1][1] = glPosY;
 }
-
 /*VAO 설정*/
 void Cobject::InitBuffer()
 {
@@ -298,7 +280,30 @@ void Cline::InitLineBuffer()
 	glEnableVertexAttribArray(pAttribute);
 	glEnableVertexAttribArray(cAttribute);
 }
+void Cbucket::InitBucketBuffer()
+{
+	GLint pAttribute = glGetAttribLocation(shaderID, "in_Position");
+	GLint cAttribute = glGetAttribLocation(shaderID, "in_Color");
 
+	/*create buffer*/
+	glGenVertexArrays(1, &_vao);
+	glGenBuffers(2, _vbo);
+
+	/*vao binding*/
+	glBindVertexArray(_vao);
+
+	/*vbo binding*/
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_bucketArr), _bucketArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(pAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_colorArr), _colorArr, GL_STATIC_DRAW);
+	glVertexAttribPointer(cAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(pAttribute);
+	glEnableVertexAttribArray(cAttribute);
+}
 /*도형 활성화*/
 void Cobject::SetAlive(bool alive)
 {
@@ -321,8 +326,14 @@ void Cline::SetMouseClick(bool mouseClick)
 	else
 		_MouseClick = false;
 }
-
-/*vertex, color*/
+void Cbucket::SetAlive(bool alive)
+{
+	if (alive == true)
+		_Alive = true;
+	else
+		_Alive = false;
+}
+/*vertex, color 배열 할당*/
 void Cobject::SetArray()
 {
 	for (int i = 0; i < _objectType; i++)
@@ -387,6 +398,21 @@ void Cobject::SetArray()
 		break;
 	}
 }
+void Cbucket::SetArray()
+{
+	/*좌상*/
+	_bucketArr[0][0] = -0.2f;
+	_bucketArr[0][1] = -0.8f;
+	/*좌하*/
+	_bucketArr[1][0] = -0.2f;
+	_bucketArr[1][1] = -0.9f;
+	/*우하*/
+	_bucketArr[2][0] = 0.2f;
+	_bucketArr[2][1] = -0.9f;
+	/*우상*/
+	_bucketArr[3][0] = 0.2f;
+	_bucketArr[3][1] = -0.8f;
+}
 /**********************************************************************************************/
 
 /*************************************클래스 함수(상태 확인)***********************************/
@@ -424,6 +450,9 @@ GLvoid drawScene()
 	/*셰이더 프로그램 사용*/
 	glUseProgram(shaderID);
 
+	/*바구니 그리기*/
+	bucket.DrawBucket();
+
 	/*그리기*/
 	Draw();
 
@@ -445,12 +474,10 @@ GLvoid drawScene()
 	/*더블 버퍼링(화면 출력)*/
 	glutSwapBuffers();
 }
-
 GLvoid Reshape(int w, int h)
 {
 	glViewport(0, 0, w, h);
 }
-
 GLvoid Keyboard(unsigned char button, int x, int y)
 {
 	switch (button)
@@ -484,7 +511,6 @@ GLvoid Keyboard(unsigned char button, int x, int y)
 	}
 	glutPostRedisplay();
 }
-
 GLvoid Mouse(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -504,7 +530,6 @@ GLvoid Mouse(int button, int state, int x, int y)
 
 	glutPostRedisplay();
 }
-
 GLvoid Motion(int x, int y)
 {
 	if (line.GetAlive() == true)
@@ -515,7 +540,6 @@ GLvoid Motion(int x, int y)
 	}
 	glutPostRedisplay();
 }
-
 GLvoid TimerCreate(int value)
 {
 	/*생성*/
@@ -527,7 +551,6 @@ GLvoid TimerCreate(int value)
 	/*타이머 무한 반복*/
 	glutTimerFunc(2000, TimerCreate, 1);
 }
-
 GLvoid TimerMove(int value)
 {
 	/*이동*/

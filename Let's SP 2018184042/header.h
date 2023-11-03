@@ -14,7 +14,7 @@ mt19937 eng(static_cast<mt19937::result_type>(seed));
 uniform_int_distribution<int> randColor(1, 5);
 uniform_int_distribution<int> polygonType(3, 6);
 uniform_int_distribution<int> moveType(1, 2);
-uniform_real_distribution<double> randPosition(-1.0f, 1.0f);
+uniform_real_distribution<double> randPosition(-0.5f, 1.0f);
 
 /*셰이더 프로그램 변수*/
 GLuint shaderID;
@@ -37,6 +37,7 @@ enum {
 	YELLOW = 5
 };
 
+/**********도형**********/
 class Cobject
 {
 public:
@@ -60,7 +61,7 @@ public:
 	/*상태 확인*/
 	bool GetAlive();
 
-	/*상태 변환*/
+	/*상태 변화*/
 	void Move();
 	void ShowPath();
 
@@ -90,6 +91,7 @@ private:
 };
 Cobject object[100];
 
+/**********슬라이스 선**********/
 class Cline
 {
 public:
@@ -99,6 +101,8 @@ public:
 	};
 	/*버퍼 초기화*/
 	void InitLineBuffer();
+
+	/*그리기*/
 	void DrawLine();
 
 	/*객체 초기화*/
@@ -109,7 +113,7 @@ public:
 	bool GetAlive();
 	bool GetMouseClick();
 
-	/*상태 변환*/
+	/*상태 변화*/
 	void InsertPosition1(float glPosX, float glPosY);
 	void InsertPosition2(float glPosX, float glPosY);
 	void ResetLineArray();
@@ -129,3 +133,40 @@ private:
 	bool _MouseClick = false;
 };
 Cline line;
+
+/**********바구니**********/
+class Cbucket
+{
+public:
+	Cbucket()
+	{
+
+	};
+	/*버퍼 초기화*/
+	void InitBucketBuffer();
+
+	/*그리기*/
+	void DrawBucket();
+
+	/*객체 초기화*/
+	void SetAlive(bool alive);
+	void SetArray();
+
+	/*상태 변화*/
+	void BucketMove();
+
+	~Cbucket()
+	{
+
+	};
+private:
+	/*배열 관련*/
+	GLuint _vao, _vbo[2];
+	float _bucketArr[4][3] = { 0.0f };
+	float _colorArr[4][3] = { {0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f },{0.0f, 0.0f,1.0f } };
+
+	/*상태 변화 관련*/
+	bool _Alive = false;
+	bool _MouseClick = false;
+};
+Cbucket bucket;
