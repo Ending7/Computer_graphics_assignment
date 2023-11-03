@@ -41,6 +41,13 @@ enum {
 	LEFT = 0,
 	RIGHT = 1,
 };
+
+enum {
+	TRIANGLE = 3,
+	RECTANGLE = 4,
+	PENTAGON = 5,
+	HEXAGON = 6
+};
 /**********도형**********/
 class Cobject
 {
@@ -64,6 +71,8 @@ public:
 
 	/*상태 확인*/
 	bool GetAlive();
+	void GetArray(float objectArr[6][3]);
+	int GetType();
 
 	/*상태 변화*/
 	void ObjectMove();
@@ -93,7 +102,7 @@ private:
 	float _positionX1, _positionY1, _positionX2, _positionY2;
 	float _tempX, _tempY;
 };
-Cobject object[100];
+Cobject object[10];
 
 /**********슬라이스 선**********/
 class Cline
@@ -116,6 +125,7 @@ public:
 	/*상태 확인*/
 	bool GetAlive();
 	bool GetMouseClick();
+	void GetArray(float sliceLineArr[2][3]);
 
 	/*상태 변화*/
 	void InsertPosition1(float glPosX, float glPosY);
@@ -155,6 +165,7 @@ public:
 	/*객체 초기화*/
 	void SetAlive(bool alive);
 	void SetArray();
+
 
 	/*상태 변화*/
 	void BucketMove();

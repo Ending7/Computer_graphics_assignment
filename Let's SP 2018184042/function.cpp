@@ -14,7 +14,7 @@ void InitBucket()
 /*도형 그리기*/
 void Draw()
 {
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		object[i].Draw();
 	}
@@ -22,7 +22,7 @@ void Draw()
 /*경로 그리기*/
 void ShowPath()
 {
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		object[i].ShowPath();
 	}
@@ -49,7 +49,106 @@ void Collider()
 {
 	if (line.GetAlive() == true && line.GetMouseClick() == false)
 	{
-		/*충돌처리 하고 _alive == false*/
+		/*생각: 각 도형의 선분들과 슬라이스 선분의 교점을 구한다.
+		교점을 구했을 때 2개가 나온다면 그 교점을 기준으로 도형을
+		두개로 나누면 된다.
+
+		/*충돌처리*/
+		for (int i = 0; i < 10; i++)
+		{		
+			/*1.슬라이스 선분 배열을 꺼내온다.*/
+			float sliceLineArr[2][3] = { 1.0f };
+			line.GetArray(sliceLineArr);
+
+			/*2.도형의 배열을 꺼내온다.*/		
+			float objectArr[6][3] = { 1.0f };
+			object[i].GetArray(objectArr);
+
+			/*3.도형의 타입을 가져온다.*/		
+			int objectType = 0;
+			objectType = object[i].GetType();
+
+			/*4. 먼저 슬라이스 선의 x, y를 추출한다.*/
+			float x1 = sliceLineArr[0][0];
+			float y1 = sliceLineArr[0][1];
+			float x2 = sliceLineArr[1][0];
+			float y2 = sliceLineArr[1][1];
+			int count = 0;
+			
+			/*5. 이어서 도형의 모든 선분의 직선의 방정식을 구하고
+			교점의 방정식을 이용하여 교점의 개수와 교점을 구한다.
+			2개면 이어서 충돌처리하고, 아니면 continue해서 다음 도형 검사*/
+			switch (objectType)
+			{
+			case TRIANGLE:
+				for (int i = 0; i < 3; i++)
+				{
+					float t, s, _t, _s, under;
+					/*첫번째 변 추출*/
+					float x3 = objectArr[i][0];
+					float y3 = objectArr[i][1];
+					float x4 = objectArr[i+1][0];
+					float y4 = objectArr[i+1][1];
+					/*i==3일 때 x4, y4는 맨 처음 정점*/
+					if (i == 2)
+					{
+						x4 = objectArr[0][0];
+						y4 = objectArr[0][1];
+					}
+					/*분모*/
+					under = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+					if (under == 0) //분모가 0이면 평행이다
+					{
+						continue;
+					}
+					/*분자*/
+					_t = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+					_s = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+					/*최종 공식*/
+					t = _t / under;
+					s = _s / under;
+					if (t < 0.0 || t>1.0 || s < 0.0 || s>1.0)
+					{
+						continue;
+					}
+					if (_t == 0 && _s == 0)
+					{
+						continue;
+					}
+					float finalx = x1 + t * (x2 - x1);
+					float finaly = y1 + t * (y2 - y1);
+					count += 1;
+				}
+				break;
+			case RECTANGLE:
+
+				break;
+			case PENTAGON:
+
+				break;
+			case HEXAGON:
+
+				break;
+			}
+			
+			if (count == 2)
+				object[i].SetAlive(false);
+
+			///*디버깅*/
+			//for (int i = 0; i < 2; i++)
+			//{
+			//	printf("%f\n", sliceLineArr[i][0]);
+			//	printf("%f\n\n\n", sliceLineArr[i][1]);
+			//}
+			//for (int i = 0; i < 6; i++)
+			//{
+			//	printf("%f\n", objectArr[i][0]);
+			//	printf("%f\n\n\n", objectArr[i][1]);
+			//}
+			//printf("objecType:%d", objectType);
+		}
+
+		/*충돌처리 마쳤으면 _alive == false*/
 		line.ResetLineArray(); //선 초기화
 		line.SetAlive(false);
 	}
@@ -57,7 +156,7 @@ void Collider()
 /*도형 이동*/
 void ObjectMove() 
 {
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 20; i++)
 	{	
 			object[i].ObjectMove();
 	}
@@ -452,6 +551,30 @@ bool Cline::GetAlive()
 bool Cline::GetMouseClick()
 {
 	return _MouseClick;
+}
+void Cline::GetArray(float sliceLineArr[2][3])
+{
+	for (int i = 0; i < 2; i++)
+	{
+		sliceLineArr[i][0] = _lineArr[i][0];
+		sliceLineArr[i][1] = _lineArr[i][1];
+		sliceLineArr[i][2] = _lineArr[i][2];
+	}
+
+}
+void Cobject::GetArray(float objectArr[6][3])
+{
+	for (int i = 0; i < 6; i++)
+	{
+		objectArr[i][0] = _objectArr[i][0];
+		objectArr[i][1] = _objectArr[i][1];
+		objectArr[i][2] = _objectArr[i][2];
+	}
+
+}
+int Cobject::GetType()
+{
+	return _objectType;
 }
 /**********************************************************************************************/
 
