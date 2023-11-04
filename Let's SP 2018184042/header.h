@@ -12,7 +12,7 @@ random_device seeder;
 const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
 uniform_int_distribution<int> randColor(1, 5);
-uniform_int_distribution<int> polygonType(3, 4);
+uniform_int_distribution<int> polygonType(5, 5);
 uniform_int_distribution<int> moveType(1, 2);
 uniform_real_distribution<double> randPosition(-0.5f, 1.0f);
 
