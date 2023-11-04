@@ -1704,7 +1704,7 @@ GLvoid Motion(int x, int y)
 		GLfloat glPosY = -((GLfloat)y / 500 - 1);
 		line.InsertPosition2(glPosX, glPosY);
 	}
-	glutPostRedisplay();
+	
 }
 GLvoid TimerObjectCreate(int value)
 {
