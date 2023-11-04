@@ -180,13 +180,102 @@ void Collider()
 						count += 1;
 					}
 					break;
+
 				case RECTANGLE:
-
+					for (int i = 0; i < 4; i++)
+					{
+						float t, s, _t, _s, under;
+						/*첫번째 변 추출*/
+						float x3 = objectArr[i][0];
+						float y3 = objectArr[i][1];
+						float x4 = objectArr[i + 1][0];
+						float y4 = objectArr[i + 1][1];
+						/*i==3일 때 x4, y4는 맨 처음 정점*/
+						if (i == 3)
+						{
+							x4 = objectArr[0][0];
+							y4 = objectArr[0][1];
+						}
+						/*분모*/
+						under = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+						if (under == 0) //분모가 0이면 평행이다
+						{
+							continue;
+						}
+						/*분자*/
+						_t = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+						_s = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+						/*최종 공식*/
+						t = _t / under;
+						s = _s / under;
+						if (t < 0.0 || t>1.0 || s < 0.0 || s>1.0)
+						{
+							continue;
+						}
+						if (_t == 0 && _s == 0)
+						{
+							continue;
+						}
+						/*최종적으로 finalx, finaly에 두 교점이 들어간다.*/
+						if (finalx == 0.0f)
+						{
+							finalx = x1 + t * (x2 - x1);
+							finaly = y1 + t * (y2 - y1);
+						}
+						else
+						{
+							finalx2 = x1 + t * (x2 - x1);
+							finaly2 = y1 + t * (y2 - y1);
+						}
+						/*두 교점이 어떤 변에 들어 있는 점인지를 파악해야 한다.*/
+						switch (i)
+						{
+						case 0:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 0;
+							}
+							else
+							{
+								vertexType2 = 0;
+							}
+							break;
+						case 1:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 1;
+							}
+							else
+							{
+								vertexType2 = 1;
+							}
+							break;
+						case 2:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 2;
+							}
+							else
+							{
+								vertexType2 = 2;
+							}
+							break;
+						case 3:
+							if (vertexType1 == 0)
+							{
+								vertexType1 = 3;
+							}
+							else
+							{
+								vertexType2 = 3;
+							}
+							break;
+						}
+						count += 1;
+					}
 					break;
+					
 				case PENTAGON:
-
-					break;
-				case HEXAGON:
 
 					break;
 				}
@@ -200,6 +289,28 @@ void Collider()
 					switch (objectType)
 					{
 					case TRIANGLE:
+						printf("TRIANGLE, ");
+						for (int i = 0; i < 20; i++)
+						{
+							/*비어있는 슬라이스 오브젝트를 찾아보자.*/
+							if (sliceObject[i].GetAlive() == false)
+							{
+								printf("objecCount, i: %d, %d\n", objectCount, i);
+								/*살아있는 오브젝트로 변환*/
+								sliceObject[i].SetAlive(true);
+								sliceObject[i].SetArray(vertexType1, vertexType2, finalx, finaly, finalx2, finaly2, objectType, objectCount, objectArr, colorType);
+								sliceObject[i].InitSliceObject();
+								++objectCount;
+							}
+
+							if (objectCount == 2)
+							{
+								break;
+							}
+						}
+						break;
+
+					case RECTANGLE:
 						printf("TRIANGLE, ");
 						for (int i = 0; i < 20; i++)
 						{
@@ -788,6 +899,177 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 				_sliceObjectArr[2][1] = objectArr[2][1];
 				_sliceObjectArr[3][0] = objectArr[0][0] + 0.01f;
 				_sliceObjectArr[3][1] = objectArr[0][1];
+				_objectType = RECTANGLE;
+			}
+		}
+		break;
+
+	case RECTANGLE:
+		if (vertexType1 == 1 && vertexType2 == 0)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.02f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = finalx2 + 0.02f;
+				_sliceObjectArr[1][1] = finaly2 ;
+				_sliceObjectArr[2][0] = finalx + 0.02f;
+				_sliceObjectArr[2][1] = finaly ;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[2][0];
+				_sliceObjectArr[0][1] = objectArr[2][1] - 0.01f;
+				_sliceObjectArr[1][0] = objectArr[3][0];
+				_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
+				_sliceObjectArr[2][0] = objectArr[0][0];
+				_sliceObjectArr[2][1] = objectArr[0][1] - 0.01f;
+				_sliceObjectArr[3][0] = finalx;
+				_sliceObjectArr[3][1] = finaly - 0.01f;
+				_sliceObjectArr[4][0] = finalx2;
+				_sliceObjectArr[4][1] = finaly2 - 0.01f;
+				_objectType = PENTAGON;
+			}
+		}
+		else if (vertexType1 == 1 && vertexType2 == 2)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = finalx;
+				_sliceObjectArr[0][1] = finaly - 0.01f;
+				_sliceObjectArr[1][0] = objectArr[2][0];
+				_sliceObjectArr[1][1] = objectArr[2][1] - 0.01f;
+				_sliceObjectArr[2][0] = finalx2;
+				_sliceObjectArr[2][1] = finaly2 - 0.01f;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = finalx + 0.01f;
+				_sliceObjectArr[1][1] = finaly;
+				_sliceObjectArr[2][0] = finalx2 + 0.01f;
+				_sliceObjectArr[2][1] = finaly2;
+				_sliceObjectArr[3][0] = objectArr[3][0] + 0.01f;
+				_sliceObjectArr[3][1] = objectArr[3][1];
+				_sliceObjectArr[4][0] = objectArr[0][0] + 0.01f;
+				_sliceObjectArr[4][1] = objectArr[0][1];
+				_objectType = PENTAGON;
+			}
+		}
+		else if (vertexType1 == 2 && vertexType2 == 3)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = finalx + 0.02f;
+				_sliceObjectArr[0][1] = finaly - 0.01f;
+				_sliceObjectArr[1][0] = objectArr[3][0] + 0.02f;
+				_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
+				_sliceObjectArr[2][0] = finalx2 + 0.02;
+				_sliceObjectArr[2][1] = finaly2 - 0.01f;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = objectArr[2][0] + 0.01f;
+				_sliceObjectArr[1][1] = objectArr[2][1];
+				_sliceObjectArr[2][0] = finalx + 0.01f;
+				_sliceObjectArr[2][1] = finaly;
+				_sliceObjectArr[3][0] = finalx2 + 0.01f;
+				_sliceObjectArr[3][1] = finaly2;
+				_sliceObjectArr[4][0] = objectArr[0][0] + 0.01f;
+				_sliceObjectArr[4][1] = objectArr[0][1];
+				_objectType = PENTAGON;
+			}
+		}
+		else if (vertexType1 == 3 && vertexType2 == 0)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = finalx + 0.02f;
+				_sliceObjectArr[0][1] = finaly - 0.01f;
+				_sliceObjectArr[1][0] = finalx2 + 0.02;
+				_sliceObjectArr[1][1] = finaly2 - 0.01f;
+				_sliceObjectArr[2][0] = objectArr[0][0] + 0.02f;
+				_sliceObjectArr[2][1] = objectArr[0][1] - 0.01f;
+				_objectType = TRIANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = objectArr[2][0] + 0.01f;
+				_sliceObjectArr[1][1] = objectArr[2][1];
+				_sliceObjectArr[2][0] = objectArr[3][0] + 0.01f;
+				_sliceObjectArr[2][1] = objectArr[3][1];
+				_sliceObjectArr[3][0] = finalx2 + 0.01f;
+				_sliceObjectArr[3][1] = finaly2;
+				_sliceObjectArr[4][0] = finalx + 0.01f;
+				_sliceObjectArr[4][1] = finaly;
+				_objectType = PENTAGON;
+			}
+		}
+		else if (vertexType1 == 1 && vertexType2 == 3)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[2][0] + 0.02f;
+				_sliceObjectArr[0][1] = objectArr[2][1] - 0.01f;
+				_sliceObjectArr[1][0] = objectArr[3][0] + 0.02f;
+				_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
+				_sliceObjectArr[2][0] = finalx2 + 0.02;
+				_sliceObjectArr[2][1] = finaly2 - 0.01f;
+				_sliceObjectArr[3][0] = finalx + 0.02f;
+				_sliceObjectArr[3][1] = finaly - 0.01f;
+				_objectType = RECTANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[1][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = finalx+0.01f;
+				_sliceObjectArr[1][1] = finaly;
+				_sliceObjectArr[2][0] = finalx2 + 0.01f;
+				_sliceObjectArr[2][1] = finaly2;
+				_sliceObjectArr[3][0] = objectArr[0][0] + 0.01f;
+				_sliceObjectArr[3][1] = objectArr[0][1];
+				_objectType = RECTANGLE;
+			}
+		}
+		else if (vertexType1 == 2 && vertexType2 == 0)
+		{
+			if (objectCount == 0)
+			{
+				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
+				_sliceObjectArr[0][0] = objectArr[1][0];
+				_sliceObjectArr[0][1] = objectArr[1][1];
+				_sliceObjectArr[1][0] = objectArr[2][0];
+				_sliceObjectArr[1][1] = objectArr[2][1];
+				_sliceObjectArr[2][0] = finalx2;
+				_sliceObjectArr[2][1] = finaly2;
+				_sliceObjectArr[3][0] = finalx;
+				_sliceObjectArr[3][1] = finaly;
+				_objectType = RECTANGLE;
+			}
+			else if (objectCount == 1)
+			{
+				_sliceObjectArr[0][0] = objectArr[3][0] + 0.01f;
+				_sliceObjectArr[0][1] = objectArr[3][1] - 0.01f;
+				_sliceObjectArr[1][0] = objectArr[0][0] + 0.01f;
+				_sliceObjectArr[1][1] = objectArr[0][1] - 0.01f;
+				_sliceObjectArr[2][0] = finalx + 0.01f;
+				_sliceObjectArr[2][1] = finaly - 0.01f;
+				_sliceObjectArr[3][0] = finalx2 + 0.01f;
+				_sliceObjectArr[3][1] = finaly2 - 0.01f;
 				_objectType = RECTANGLE;
 			}
 		}
