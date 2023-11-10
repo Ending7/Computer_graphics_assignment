@@ -507,9 +507,18 @@ void Cobject::ShowPath()
 {
 	if (_Alive == true)
 	{
-		InitPathBuffer();
-		glBindVertexArray(_vao);
-		glDrawArrays(GL_LINES, 0, 2);
+		if (_moveType == 1 || _moveType == 2)
+		{
+			InitPathBuffer();
+			glBindVertexArray(_vao);
+			glDrawArrays(GL_LINES, 0, 2);
+		}
+		else if (_moveType == 3 || _moveType == 4)
+		{
+			InitPathBuffer();
+			glBindVertexArray(_vao);
+			glDrawArrays(GL_LINES, 0, 2);
+		}
 	}
 }
 void Cline::DrawLine()
@@ -565,9 +574,45 @@ void Cobject::ObjectMove()
 			InitBuffer();
 			break;
 
+		
+
 		case 2:
 			_positionX2 = (1 - _moveT) * _tempX + _moveT * _positionX1;
 			_positionY2 = (1 - _moveT) * _tempY + _moveT * _positionY1;
+			_moveT += 0.005f;
+			if (_moveT >= 1.0f)
+				_Alive = false;
+			SetArray();
+			InitBuffer();
+			break;
+
+		case 3:
+			_positionX1 = pow(_moveT, 3) * _tempX +
+				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint1X +
+				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint2X +
+				pow(1 - _moveT, 3) * _positionX2;
+
+			_positionY1 = pow(_moveT, 3) * _tempY +
+				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint1Y +
+				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint2Y +
+				pow(1 - _moveT, 3) * _positionY2;
+			_moveT += 0.005f;
+			if (_moveT >= 1.0f)
+				_Alive = false;
+			SetArray();
+			InitBuffer();
+			break;
+
+		case 4:
+			_positionX2 = pow(_moveT, 3) * _tempX +
+				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint2X +
+				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint1X +
+				pow(1 - _moveT, 3) * _positionX1;
+
+			_positionY2 = pow(_moveT, 3) * _tempY +
+				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint2Y +
+				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint1Y +
+				pow(1 - _moveT, 3) * _positionY1;
 			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
@@ -634,9 +679,20 @@ void Cobject::ObjectReset()
 	_moveT = 0.0f;
 	_positionX1 = -1.2f;
 	_positionX2 = 1.2f;
-	_positionY1 = (float)randPosition(eng);
-	_positionY2 = (float)randPosition(eng);
-
+	_positionX3 = -1.2 + (float)randPosition2(eng);
+	_positionX4 = 1.2 - (float)randPosition2(eng);
+	if (_moveType == 1 || _moveType == 2)
+	{
+		_positionY1 = (float)randPosition(eng);
+		_positionY2 = (float)randPosition(eng);
+	}
+	else if (_moveType == 3 || _moveType == 4)
+	{
+		_positionY1 = (float)randPosition3(eng);
+		_positionY2 = (float)randPosition3(eng);
+	}
+	_positionY3 = _positionY1 + 0.5f;
+	_positionY4 = _positionY2 + 0.5f;
 
 	/*_moveType1 = 왼->오, moveType2 = 오->왼*/
 	if (_moveType == 1)
@@ -656,12 +712,57 @@ void Cobject::ObjectReset()
 		_tempX = _positionX2;
 		_tempY = _positionY2;
 
+
 		_pathArr[0][0] = _tempX;
 		_pathArr[0][1] = _tempY;
 		_pathArr[0][2] = 0.0f;
 		_pathArr[1][0] = _positionX1;
 		_pathArr[1][1] = _positionY1;
 		_pathArr[1][2] = 0.0f;
+	}
+	else if (_moveType == 3)
+	{
+		_tempX = _positionX1;
+		_tempY = _positionY1;
+		_controlpoint1X = _positionX3;
+		_controlpoint2X = _positionX4;
+		_controlpoint1Y = _positionY3;
+		_controlpoint2Y = _positionY4;
+
+		_pathArr[0][0] = _tempX;
+		_pathArr[0][1] = _tempY;
+		_pathArr[0][2] = 0.0f;
+		_pathArr[1][0] = _positionX2;
+		_pathArr[1][1] = _positionY2;
+		_pathArr[1][2] = 0.0f;
+		_pathArr[2][0] = _controlpoint1X;
+		_pathArr[2][1] = _controlpoint1Y;
+		_pathArr[2][2] = 0.0f;
+		_pathArr[3][0] = _controlpoint2X;
+		_pathArr[3][1] = _controlpoint2Y;
+		_pathArr[3][2] = 0.0f;
+	}
+	else if (_moveType == 4)
+	{
+		_tempX = _positionX2;
+		_tempY = _positionY2;
+		_controlpoint1X = _positionX3;
+		_controlpoint2X = _positionX4;
+		_controlpoint1Y = _positionY3;
+		_controlpoint2Y = _positionY4;
+
+		_pathArr[0][0] = _tempX;
+		_pathArr[0][1] = _tempY;
+		_pathArr[0][2] = 0.0f;
+		_pathArr[1][0] = _positionX1;
+		_pathArr[1][1] = _positionY1;
+		_pathArr[1][2] = 0.0f;
+		_pathArr[2][0] = _controlpoint1X;
+		_pathArr[2][1] = _controlpoint1Y;
+		_pathArr[2][2] = 0.0f;
+		_pathArr[3][0] = _controlpoint2X;
+		_pathArr[3][1] = _controlpoint2Y;
+		_pathArr[3][2] = 0.0f;
 	}
 }
 void CsliceObject::SliceObjectReset()
@@ -875,6 +976,16 @@ void Cobject::SetArray()
 			_objectArr[i][2] = 0.0f;
 			break;
 		case 2:
+			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle);
+			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle);
+			_objectArr[i][2] = 0.0f;
+			break;
+		case 3:
+			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle);
+			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle);
+			_objectArr[i][2] = 0.0f;
+			break;
+		case 4:
 			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle);
 			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle);
 			_objectArr[i][2] = 0.0f;

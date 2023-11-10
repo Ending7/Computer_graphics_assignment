@@ -13,8 +13,10 @@ const auto seed = seeder.entropy() ? seeder() : time(nullptr);
 mt19937 eng(static_cast<mt19937::result_type>(seed));
 uniform_int_distribution<int> randColor(1, 5);
 uniform_int_distribution<int> polygonType(3, 5);
-uniform_int_distribution<int> moveType(1, 2);
+uniform_int_distribution<int> moveType(1, 4);
 uniform_real_distribution<double> randPosition(-0.5f, 1.0f);
+uniform_real_distribution<double> randPosition2(0.4f, 0.8f);
+uniform_real_distribution<double> randPosition3(-0.3f, 0.5f);
 
 /*셰이더 프로그램 변수*/
 GLuint shaderID;
@@ -92,7 +94,7 @@ private:
 	GLuint _vao, _vbo[2];
 	float _objectArr[6][3] = { 0.0f };
 	float _colorArr[6][3] = { 0.0f };
-	float _pathArr[2][3] = { 0.0f };
+	float _pathArr[4][3] = { 0.0f };
 
 	/*상태 변화 관련*/
 	bool _Alive = false;
@@ -101,7 +103,10 @@ private:
 	int _moveType;
 	float _moveT;
 	float _positionX1, _positionY1, _positionX2, _positionY2;
+	float _positionX3, _positionY3, _positionX4, _positionY4;
 	float _tempX, _tempY;
+	float _controlpoint1X, _controlpoint1Y;
+	float _controlpoint2X, _controlpoint2Y;
 };
 Cobject object[10];
 
