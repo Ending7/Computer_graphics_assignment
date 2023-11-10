@@ -513,11 +513,63 @@ void Cobject::ShowPath()
 			glBindVertexArray(_vao);
 			glDrawArrays(GL_LINES, 0, 2);
 		}
-		else if (_moveType == 3 || _moveType == 4)
+		else if (_moveType == 3)
 		{
-			InitPathBuffer();
-			glBindVertexArray(_vao);
-			glDrawArrays(GL_LINES, 0, 2);
+			while (true)
+			{
+				float temppositionX, temppositionY;
+				temppositionX = pow(tempMoveT, 3.0f) * _tempX +
+					3.0f * pow(tempMoveT, 2) * (1.0f - tempMoveT) * _controlpoint1X +
+					3.0f * tempMoveT * pow((1.0f - tempMoveT), 2.0f) * _controlpoint2X +
+					pow(1 - tempMoveT, 3) * _positionX2;
+
+				temppositionY = pow(tempMoveT, 3.0f) * _tempY +
+					3.0f * pow(tempMoveT, 2) * (1.0f - tempMoveT) * _controlpoint1Y +
+					3.0f * tempMoveT * pow((1.0f - tempMoveT), 2.0f) * _controlpoint2Y +
+					pow(1 - tempMoveT, 3.0f) * _positionY2;
+				tempMoveT += 0.01f;
+				_pathArr[0][0] = temppositionX;
+				_pathArr[0][1] = temppositionY;
+				_pathArr[0][2] = 0.0f;
+				if (tempMoveT >= 1.0f)
+				{
+					tempMoveT = 0.0f;
+					break;
+				}
+				InitPathBuffer();
+				glBindVertexArray(_vao);
+				glPointSize(3.0f);
+				glDrawArrays(GL_POINTS, 0, 2);
+			}	
+		}
+		else if (_moveType == 4)
+		{
+			while (true)
+			{	
+				float temppositionX, temppositionY;
+				temppositionX = pow(tempMoveT, 3.0f) * _tempX +
+					3.0f * pow(tempMoveT, 2.0f) * (1.0f - tempMoveT) * _controlpoint2X +
+					3.0f * tempMoveT * pow((1.0f - tempMoveT), 2.0f) * _controlpoint1X +
+					pow(1 - tempMoveT, 3) * _positionX1;
+
+				temppositionY = pow(tempMoveT, 3) * _tempY +
+					3 * pow(tempMoveT, 2) * (1.0f - tempMoveT) * _controlpoint2Y +
+					3 * tempMoveT * pow((1.0f - tempMoveT), 2) * _controlpoint1Y +
+					pow(1 - tempMoveT, 3) * _positionY1;
+				tempMoveT += 0.01f;
+				_pathArr[0][0] = temppositionX;
+				_pathArr[0][1] = temppositionY;
+				_pathArr[0][2] = 0.0f;
+				if (tempMoveT >= 1.0f)
+				{
+					tempMoveT = 0.0f;
+					break;
+				}
+				InitPathBuffer();
+				glBindVertexArray(_vao);
+				glPointSize(3.0f);
+				glDrawArrays(GL_POINTS, 0, 2);
+			}
 		}
 	}
 }
@@ -587,15 +639,15 @@ void Cobject::ObjectMove()
 			break;
 
 		case 3:
-			_positionX1 = pow(_moveT, 3) * _tempX +
-				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint1X +
-				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint2X +
-				pow(1 - _moveT, 3) * _positionX2;
+			_positionX1 = pow(_moveT, 3.0f) * _tempX +
+				3.0f * pow(_moveT, 2.0f) * (1.0f - _moveT) * _controlpoint1X +
+				3.0f * _moveT * pow((1.0f - _moveT), 2.0f) * _controlpoint2X +
+				pow(1.0f - _moveT, 3) * _positionX2;
 
-			_positionY1 = pow(_moveT, 3) * _tempY +
-				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint1Y +
-				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint2Y +
-				pow(1 - _moveT, 3) * _positionY2;
+			_positionY1 = pow(_moveT, 3.0f) * _tempY +
+				3.0f * pow(_moveT, 2.0f) * (1.0f - _moveT) * _controlpoint1Y +
+				3.0f * _moveT * pow((1.0f - _moveT), 2.0f) * _controlpoint2Y +
+				pow(1 - _moveT, 3.0f) * _positionY2;
 			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
@@ -604,15 +656,15 @@ void Cobject::ObjectMove()
 			break;
 
 		case 4:
-			_positionX2 = pow(_moveT, 3) * _tempX +
-				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint2X +
-				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint1X +
-				pow(1 - _moveT, 3) * _positionX1;
+			_positionX2 = pow(_moveT, 3.0f) * _tempX +
+				3.0f * pow(_moveT, 2.0f) * (1.0f - _moveT) * _controlpoint2X +
+				3.0f * _moveT * pow((1.0f - _moveT), 2.0f) * _controlpoint1X +
+				pow(1 - _moveT, 3.0f) * _positionX1;
 
-			_positionY2 = pow(_moveT, 3) * _tempY +
-				3 * pow(_moveT, 2) * (1 - _moveT) * _controlpoint2Y +
-				3 * _moveT * pow((1 - _moveT), 2) * _controlpoint1Y +
-				pow(1 - _moveT, 3) * _positionY1;
+			_positionY2 = pow(_moveT, 3.0f) * _tempY +
+				3.0f * pow(_moveT, 2.0f) * (1.0f - _moveT) * _controlpoint2Y +
+				3.0f * _moveT * pow((1.0f - _moveT), 2.0f) * _controlpoint1Y +
+				pow(1 - _moveT, 3.0f) * _positionY1;
 			_moveT += 0.005f;
 			if (_moveT >= 1.0f)
 				_Alive = false;
@@ -679,8 +731,8 @@ void Cobject::ObjectReset()
 	_moveT = 0.0f;
 	_positionX1 = -1.2f;
 	_positionX2 = 1.2f;
-	_positionX3 = -1.2 + (float)randPosition2(eng);
-	_positionX4 = 1.2 - (float)randPosition2(eng);
+	_positionX3 = -1.2f + (float)randPosition2(eng);
+	_positionX4 = 1.2f - (float)randPosition2(eng);
 	if (_moveType == 1 || _moveType == 2)
 	{
 		_positionY1 = (float)randPosition(eng);
@@ -1203,7 +1255,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 				_sliceObjectArr[0][1] = finaly - 0.01f;
 				_sliceObjectArr[1][0] = objectArr[3][0] + 0.02f;
 				_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
-				_sliceObjectArr[2][0] = finalx2 + 0.02;
+				_sliceObjectArr[2][0] = finalx2 + 0.02f;
 				_sliceObjectArr[2][1] = finaly2 - 0.01f;
 				_objectType = TRIANGLE;
 			}
@@ -1229,7 +1281,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 				printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
 				_sliceObjectArr[0][0] = finalx + 0.02f;
 				_sliceObjectArr[0][1] = finaly - 0.01f;
-				_sliceObjectArr[1][0] = finalx2 + 0.02;
+				_sliceObjectArr[1][0] = finalx2 + 0.02f;
 				_sliceObjectArr[1][1] = finaly2 - 0.01f;
 				_sliceObjectArr[2][0] = objectArr[0][0] + 0.02f;
 				_sliceObjectArr[2][1] = objectArr[0][1] - 0.01f;
@@ -1259,7 +1311,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 				_sliceObjectArr[0][1] = objectArr[2][1] - 0.01f;
 				_sliceObjectArr[1][0] = objectArr[3][0] + 0.02f;
 				_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
-				_sliceObjectArr[2][0] = finalx2 + 0.02;
+				_sliceObjectArr[2][0] = finalx2 + 0.02f;
 				_sliceObjectArr[2][1] = finaly2 - 0.01f;
 				_sliceObjectArr[3][0] = finalx + 0.02f;
 				_sliceObjectArr[3][1] = finaly - 0.01f;
@@ -1378,7 +1430,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 					_sliceObjectArr[0][1] = finaly - 0.01f;
 					_sliceObjectArr[1][0] = objectArr[3][0] - 0.01f;
 					_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
-					_sliceObjectArr[2][0] = finalx2 - 0.01;
+					_sliceObjectArr[2][0] = finalx2 - 0.01f;
 					_sliceObjectArr[2][1] = finaly2 - 0.01f;
 					_objectType = TRIANGLE;
 				}
@@ -1406,7 +1458,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 					printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
 					_sliceObjectArr[0][0] = finalx + 0.02f;
 					_sliceObjectArr[0][1] = finaly - 0.01f;
-					_sliceObjectArr[1][0] = finalx2 + 0.02;
+					_sliceObjectArr[1][0] = finalx2 + 0.02f;
 					_sliceObjectArr[1][1] = finaly2 - 0.01f;
 					_sliceObjectArr[2][0] = objectArr[4][0] + 0.02f;
 					_sliceObjectArr[2][1] = objectArr[4][1] - 0.01f;
@@ -1436,7 +1488,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 					printf("x1,x2,y1,y2: %f %f %f %f", finalx, finalx2, finaly, finaly2);
 					_sliceObjectArr[0][0] = finalx + 0.02f;
 					_sliceObjectArr[0][1] = finaly - 0.01f;
-					_sliceObjectArr[1][0] = finalx2 + 0.02;
+					_sliceObjectArr[1][0] = finalx2 + 0.02f;
 					_sliceObjectArr[1][1] = finaly2 - 0.01f;
 					_sliceObjectArr[2][0] = objectArr[0][0] + 0.02f;
 					_sliceObjectArr[2][1] = objectArr[0][1] - 0.01f;
@@ -1469,7 +1521,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 					_sliceObjectArr[0][1] = objectArr[2][1] - 0.01f;
 					_sliceObjectArr[1][0] = objectArr[3][0] + 0.02f;
 					_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
-					_sliceObjectArr[2][0] = finalx2 + 0.02;
+					_sliceObjectArr[2][0] = finalx2 + 0.02f;
 					_sliceObjectArr[2][1] = finaly2 - 0.01f;
 					_sliceObjectArr[3][0] = finalx + 0.02f;
 					_sliceObjectArr[3][1] = finaly - 0.01f;
@@ -1501,7 +1553,7 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 					_sliceObjectArr[1][1] = objectArr[3][1] - 0.01f;
 					_sliceObjectArr[2][0] = objectArr[4][0] + 0.02f;
 					_sliceObjectArr[2][1] = objectArr[4][1] - 0.01f;
-					_sliceObjectArr[3][0] = finalx2 + 0.02;
+					_sliceObjectArr[3][0] = finalx2 + 0.02f;
 					_sliceObjectArr[3][1] = finaly2 - 0.01f;
 					_sliceObjectArr[4][0] = finalx + 0.02f;
 					_sliceObjectArr[4][1] = finaly - 0.01f;

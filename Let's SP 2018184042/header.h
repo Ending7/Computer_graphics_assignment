@@ -30,7 +30,7 @@ bool showPath;
 /*일반 변수*/
 int timerSpeed = 50;
 float rotateval = 0.0f;
-
+float tempMoveT = 0.0f;
 enum {
 	RED = 1,
 	GREEN = 2,
