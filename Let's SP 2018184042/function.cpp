@@ -466,6 +466,17 @@ void Collider()
 		line.SetAlive(false);
 	}
 }
+/*바구니와 슬라이스 오브젝트와의 충돌*/
+void bucketSliceCollider()
+{
+	for (int i = 0; i < 20; i++)
+	{
+		if (sliceObject[i].GetAlive())
+		{
+			printf("HI");
+		}
+	}
+}
 /*도형 이동*/
 void ObjectMove()
 {
@@ -624,6 +635,7 @@ void Cobject::ObjectMove()
 				_Alive = false;
 			SetArray();
 			InitBuffer();
+			
 			break;
 
 		
@@ -672,6 +684,7 @@ void Cobject::ObjectMove()
 			InitBuffer();
 			break;
 		}
+		_angleRotate += 0.1f;
 	}
 }
 void Cbucket::BucketMove()
@@ -1023,23 +1036,23 @@ void Cobject::SetArray()
 		switch (_moveType)
 		{
 		case 1:
-			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle);
-			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle);
+			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle + _angleRotate);
+			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle + _angleRotate);
 			_objectArr[i][2] = 0.0f;
 			break;
 		case 2:
-			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle);
-			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle);
+			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle + _angleRotate);
+			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle + _angleRotate);
 			_objectArr[i][2] = 0.0f;
 			break;
 		case 3:
-			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle);
-			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle);
+			_objectArr[i][0] = _positionX1 + 0.175f * glm::cos(angle + _angleRotate);
+			_objectArr[i][1] = _positionY1 + 0.175f * glm::sin(angle + _angleRotate);
 			_objectArr[i][2] = 0.0f;
 			break;
 		case 4:
-			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle);
-			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle);
+			_objectArr[i][0] = _positionX2 + 0.175f * glm::cos(angle + _angleRotate);
+			_objectArr[i][1] = _positionY2 + 0.175f * glm::sin(angle + _angleRotate);
 			_objectArr[i][2] = 0.0f;
 			break;
 		}

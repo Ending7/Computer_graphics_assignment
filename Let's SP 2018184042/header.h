@@ -107,6 +107,7 @@ private:
 	float _tempX, _tempY;
 	float _controlpoint1X, _controlpoint1Y;
 	float _controlpoint2X, _controlpoint2Y;
+	float _angleRotate;
 };
 Cobject object[10];
 
