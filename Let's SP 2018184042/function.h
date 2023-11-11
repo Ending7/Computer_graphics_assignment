@@ -22,7 +22,7 @@ void DrawSliceObject(); //잘린 도형 그리기
 /*상태 변화 함수*/
 void Create();
 void Collider();
-void bucketSliceCollider();
+void BucketSliceCollider();
 void ObjectMove();
 void BucketMove();
 void SliceObjectMove();

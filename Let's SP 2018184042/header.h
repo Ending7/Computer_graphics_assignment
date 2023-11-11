@@ -176,6 +176,8 @@ public:
 
 	/*상태 변화*/
 	void BucketMove();
+	void GetArray(float bucketArr[4][3]);
+	int GetBucketMoveArrow();
 
 	~Cbucket()
 	{
@@ -218,11 +220,12 @@ public:
 
 	/*상태 확인*/
 	bool GetAlive();
+	void GetLowestPos(float * lowestPosY, float * lowestPosX);
 
 	/*상태 변화*/
 	void SliceObjectMove();
 	void SliceObjectReset();
-
+	void ChangeFallType(int num);
 	~CsliceObject()
 	{
 
@@ -232,10 +235,12 @@ private:
 	GLuint _vao, _vbo[2];
 	float _sliceObjectArr[6][3] = { 0.0f };
 	float _colorArr[6][3] = { 0.0f };
-
+	
 	/*상태 변화 관련*/
 	bool _Alive = false;
 	int _objectType;
 	float _fallDown = -0.001f;
+	int _fallType = 0;
+	float positionX = 0.0f;
 };
-CsliceObject sliceObject[20];
+CsliceObject sliceObject[100];

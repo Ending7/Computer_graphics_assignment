@@ -35,7 +35,7 @@ void DrawLine()
 /*잘린 도형 그리기*/
 void DrawSliceObject()
 {
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		sliceObject[i].DrawSliceObject();
 	}
@@ -390,7 +390,7 @@ void Collider()
 					{
 					case TRIANGLE:
 						printf("TRIANGLE, ");
-						for (int i = 0; i < 20; i++)
+						for (int i = 0; i < 100; i++)
 						{
 							/*비어있는 슬라이스 오브젝트를 찾아보자.*/
 							if (sliceObject[i].GetAlive() == false)
@@ -412,7 +412,7 @@ void Collider()
 
 					case RECTANGLE:
 						printf("TRIANGLE, ");
-						for (int i = 0; i < 20; i++)
+						for (int i = 0; i < 100; i++)
 						{
 							/*비어있는 슬라이스 오브젝트를 찾아보자.*/
 							if (sliceObject[i].GetAlive() == false)
@@ -434,7 +434,7 @@ void Collider()
 
 					case PENTAGON:
 						printf("TRIANGLE, ");
-						for (int i = 0; i < 20; i++)
+						for (int i = 0; i < 100; i++)
 						{
 							/*비어있는 슬라이스 오브젝트를 찾아보자.*/
 							if (sliceObject[i].GetAlive() == false)
@@ -467,13 +467,30 @@ void Collider()
 	}
 }
 /*바구니와 슬라이스 오브젝트와의 충돌*/
-void bucketSliceCollider()
+void BucketSliceCollider()
 {
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		if (sliceObject[i].GetAlive())
 		{
-			printf("HI");
+			float bucketArr[4][3]; // 좌상, 우상, 좌하, 우하
+			float lowestPosY = 999.0f;
+			float lowestPosX = 999.0f;
+			/*1.바구니의 좌표*/
+			bucket.GetArray(bucketArr);
+			
+			/*2.슬라이스 도형에서 y값이 가장 낮은 것 추출*/
+			sliceObject[i].GetLowestPos(&lowestPosY, &lowestPosX);
+
+			/*3.충돌 처리 한다.*/
+			if (bucketArr[0][0] < lowestPosX && bucketArr[1][0] > lowestPosX)
+			{
+				if (bucketArr[0][1] > lowestPosY - 0.1f && bucketArr[0][1] < lowestPosY)
+				{					
+				sliceObject[i].ChangeFallType(1);
+				continue;
+				}
+			}
 		}
 	}
 }
@@ -491,7 +508,7 @@ void BucketMove()
 }
 void SliceObjectMove()
 {
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		sliceObject[i].SliceObjectMove();
 	}
@@ -565,7 +582,7 @@ void Cobject::ShowPath()
 
 				temppositionY = pow(tempMoveT, 3) * _tempY +
 					3 * pow(tempMoveT, 2) * (1.0f - tempMoveT) * _controlpoint2Y +
-					3 * tempMoveT * pow((1.0f - tempMoveT), 2) * _controlpoint1Y +
+					3 * tempMoveT * (float)pow((1.0f - tempMoveT), 2) * _controlpoint1Y +
 					pow(1 - tempMoveT, 3) * _positionY1;
 				tempMoveT += 0.01f;
 				_pathArr[0][0] = temppositionX;
@@ -713,26 +730,99 @@ void Cbucket::BucketMove()
 void CsliceObject::SliceObjectMove()
 {
 	if (_Alive == true)
-	{
-		for (int i = 0; i < 6; i++)
+	{	
+		if (_fallType == 0)
 		{
-			/*배열에서 0.0f는 존재하지 않는 좌표라는 것*/
-			if (_sliceObjectArr[i][1] != 0.0f)
+			for (int i = 0; i < 6; i++)
 			{
-				_sliceObjectArr[i][1] += _fallDown;
+				/*배열에서 0.0f는 존재하지 않는 좌표라는 것*/
+				if (_sliceObjectArr[i][1] != 0.0f)
+				{
+					_sliceObjectArr[i][1] += _fallDown;
+				}
+
+				/*화면 밖으로 완전히 사라지면 제거*/
+				if (_sliceObjectArr[i][1] < -1.2f)
+				{
+					/*초기화*/
+					SliceObjectReset();
+					_Alive = false;
+				}
 			}
 
-			/*화면 밖으로 완전히 사라지면 제거*/
-			if (_sliceObjectArr[i][1] < -1.2f)
-			{
-				/*초기화*/
-				SliceObjectReset();
-				_Alive = false;
-			}
+			/*중력 가속도*/
+			_fallDown -= 0.0005f;
 		}
+		else if (_fallType == 1)
+		{	
+			if (bucket.GetBucketMoveArrow() == RIGHT)
+			{
+				if (_objectType == TRIANGLE)
+				{
+					_sliceObjectArr[0][0] += 0.008f;
+					_sliceObjectArr[1][0] += 0.008f;
+					_sliceObjectArr[2][0] += 0.008f;
+				}
+				else if (_objectType == RECTANGLE)
+				{
+					_sliceObjectArr[0][0] += 0.008f;
+					_sliceObjectArr[1][0] += 0.008f;
+					_sliceObjectArr[2][0] += 0.008f;
+					_sliceObjectArr[3][0] += 0.008f;
+				}
+				else if (_objectType == PENTAGON)
+				{
+					_sliceObjectArr[0][0] += 0.008f;
+					_sliceObjectArr[1][0] += 0.008f;
+					_sliceObjectArr[2][0] += 0.008f;
+					_sliceObjectArr[3][0] += 0.008f;
+					_sliceObjectArr[4][0] += 0.008f;
+				}
+				else if (_objectType == HEXAGON)
+				{
+					_sliceObjectArr[0][0] += 0.008f;
+					_sliceObjectArr[1][0] += 0.008f;
+					_sliceObjectArr[2][0] += 0.008f;
+					_sliceObjectArr[3][0] += 0.008f;
+					_sliceObjectArr[4][0] += 0.008f;
+					_sliceObjectArr[5][0] += 0.008f;
+				}
+			}
+			else if (bucket.GetBucketMoveArrow() == LEFT)
+			{
+				if (_objectType == TRIANGLE)
+				{
+					_sliceObjectArr[0][0] -= 0.008f;
+					_sliceObjectArr[1][0] -= 0.008f;
+					_sliceObjectArr[2][0] -= 0.008f;
+				}
+				else if (_objectType == RECTANGLE)
+				{
+					_sliceObjectArr[0][0] -= 0.008f;
+					_sliceObjectArr[1][0] -= 0.008f;
+					_sliceObjectArr[2][0] -= 0.008f;
+					_sliceObjectArr[3][0] -= 0.008f;
+				}
+				else if (_objectType == PENTAGON)
+				{
+					_sliceObjectArr[0][0] -= 0.008f;
+					_sliceObjectArr[1][0] -= 0.008f;
+					_sliceObjectArr[2][0] -= 0.008f;
+					_sliceObjectArr[3][0] -= 0.008f;
+					_sliceObjectArr[4][0] -= 0.008f;
+				}
+				else if (_objectType == HEXAGON)
+				{
+					_sliceObjectArr[0][0] -= 0.008f;
+					_sliceObjectArr[1][0] -= 0.008f;
+					_sliceObjectArr[2][0] -= 0.008f;
+					_sliceObjectArr[3][0] -= 0.008f;
+					_sliceObjectArr[4][0] -= 0.008f;
+					_sliceObjectArr[5][0] -= 0.008f;
+				}
+			}
 
-		/*중력 가속도*/
-		_fallDown -= 0.0001f;
+		}
 	}
 }
 /*도형 초기화*/
@@ -848,6 +938,7 @@ void CsliceObject::SliceObjectReset()
 	/*나머지 초기화*/
 	_fallDown = -0.001f;
 	_objectType = 0;
+	_fallType = 0;
 }
 /*선 초기화*/
 void Cline::ResetLineArray()
@@ -1724,6 +1815,10 @@ void CsliceObject::SetArray(int vertexType1, int vertexType2, float finalx, floa
 		break;
 	}
 }
+void CsliceObject::ChangeFallType(int num)
+{
+	_fallType = num;
+}
 /**********************************************************************************************/
 
 /*************************************클래스 함수(상태 확인)***********************************/
@@ -1763,6 +1858,24 @@ void Cobject::GetArray(float objectArr[6][3])
 	}
 
 }
+void Cbucket::GetArray(float bucketArr[4][3])
+{
+	/*좌상*/
+	bucketArr[0][0] = _bucketArr[0][0];
+	bucketArr[0][1] = _bucketArr[1][1];
+
+	/*우상*/
+	bucketArr[1][0] = _bucketArr[3][0];
+	bucketArr[1][1] = _bucketArr[3][1];
+
+	/*좌하*/
+	bucketArr[2][0] = _bucketArr[0][0];
+	bucketArr[2][1] = _bucketArr[1][1] - 0.001f;
+
+	/*우하*/
+	bucketArr[3][0] = _bucketArr[3][0];
+	bucketArr[3][1] = _bucketArr[3][1] - 0.001f;
+}
 int Cobject::GetType()
 {
 	return _objectType;
@@ -1770,6 +1883,21 @@ int Cobject::GetType()
 int Cobject::GetColorType()
 {
 	return _colorType;
+}
+void CsliceObject::GetLowestPos(float* lowestPosY, float* lowestPosX)
+{
+	for (int i = 0; i < _objectType; i++)
+	{
+		if (_sliceObjectArr[i][1] < *lowestPosY)
+		{
+			*lowestPosY = _sliceObjectArr[i][1];
+			*lowestPosX = _sliceObjectArr[i][0];
+		}
+	}
+}
+int Cbucket::GetBucketMoveArrow()
+{
+	return _moveArrow;
 }
 /**********************************************************************************************/
 
@@ -1812,6 +1940,9 @@ GLvoid drawScene()
 
 	/*도형과 충돌 체크*/
 	Collider();
+
+	/*바구니와 잘린 도형 충돌 체크*/
+	BucketSliceCollider();
 
 	/*더블 버퍼링(화면 출력)*/
 	glutSwapBuffers();
@@ -1917,126 +2048,6 @@ GLvoid TimerOtherMove(int value)
 	glutTimerFunc(10, TimerOtherMove, 1);
 }
 /**********************************************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /****************************************Shader Pragram****************************************/
 /*버텍스 셰이더 객체 만들기*/
